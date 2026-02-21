@@ -1,0 +1,46 @@
+---
+export interface Props {
+    issue: any;
+}
+const { issue } = Astro.props;
+const labels: any[] = Array.isArray(issue.labels) ? issue.labels : [];
+const diffScore = issue.difficulty_score || 0;
+let diffCategory = 'all';
+if (diffScore <= 3) diffCategory = 'easy';
+else if (diffScore <= 6) diffCategory = 'medium';
+else if (diffScore <= 8) diffCategory = 'hard';
+else diffCategory = 'very-hard';
+---
+<div data-type="issue" data-title={issue.title.toLowerCase()} data-repo={issue.repo_id.toLowerCase()} data-difficulty={diffCategory} class="p-4 hover:bg-gray-50 transition-colors">
+    <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+            <a href={issue.url} target="_blank" rel="noopener noreferrer" class="text-base font-medium text-indigo-600 hover:text-indigo-800 hover:underline">
+                {issue.title}
+            </a>
+            <p class="text-sm text-gray-500 mt-1">
+                {issue.repo_id} &middot; {new Date(issue.created_at).toLocaleDateString()}
+            </p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+            {issue.language && (
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    {issue.language}
+                </span>
+            )}
+            {issue.difficulty_score != null && (
+                <span class={`text-xs font-semibold px-2 py-0.5 rounded-full ${diffCategory === 'easy' ? 'bg-green-100 text-green-800' : diffCategory === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                    Difficulty: {diffCategory === 'very-hard' ? 'Very Hard' : diffCategory.charAt(0).toUpperCase() + diffCategory.slice(1)}
+                </span>
+            )}
+        </div>
+    </div>
+    {labels.length > 0 && (
+        <div class="flex flex-wrap gap-1.5 mt-2">
+            {labels.map((label: any) => (
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                    {typeof label === 'string' ? label : label.name || JSON.stringify(label)}
+                </span>
+            ))}
+        </div>
+    )}
+</div>

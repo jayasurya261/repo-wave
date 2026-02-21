@@ -3,21 +3,24 @@ import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
 import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
-import RepoCard from '../components/RepoCard.astro';
 import IssueCard from '../components/IssueCard.astro';
 
-// Fetch repos ordered by stars
+// We still need repos to extract unique languages for the sidebar filter
 const { data: repos, error: reposError } = await supabase
 	.from('repos')
-	.select('*')
-	.order('stars', { ascending: false });
+	.select('language');
+
+// Extract unique languages from repos for the filter panel
+const uniqueLanguages = repos 
+	? [...new Set(repos.map(r => r.language).filter(Boolean))].sort()
+	: [];
 
 // Fetch recent issues and join with repos to get language
 const { data: issuesRaw, error: issuesError } = await supabase
 	.from('issues')
 	.select('*, repos(language)')
 	.order('created_at', { ascending: false })
-	.limit(50);
+	.limit(100);
 
 // Map issues to easily extract language from the joined repo
 const issues = issuesRaw?.map((issue: any) => ({
@@ -26,11 +29,6 @@ const issues = issuesRaw?.map((issue: any) => ({
 }));
 
 const error = reposError || issuesError;
-
-// Extract unique languages from repos for the filter panel
-const uniqueLanguages = repos 
-	? [...new Set(repos.map(r => r.language).filter(Boolean))].sort()
-	: [];
 ---
 
 <Layout>
@@ -56,7 +54,7 @@ const uniqueLanguages = repos
 				<!-- Issues Section -->
 				<section class="mb-12">
 					<h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-						Recent Issues
+						All Issues
 						<span id="issueCount" class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{issues ? issues.length : 0}</span>
 					</h2>
 					{issues && issues.length > 0 ? (
@@ -67,35 +65,13 @@ const uniqueLanguages = repos
 						<p class="text-gray-500">No issues found.</p>
 					)}
 					<div id="noIssuesMsg" class="hidden text-gray-500 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 text-center">No issues match your search.</div>
-					
-					<div class="mt-6 flex justify-center">
-						<button id="showMoreIssuesBtn" class="hidden px-6 py-2.5 bg-white border border-gray-300 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm">
-							Show More Issues
-						</button>
-					</div>
+					<div id="paginationContainer" class="mt-8"></div>
 				</section>
-
-				<!-- Repos Section -->
-				<section>
-					<h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-						Repositories
-						<span id="repoCount" class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{repos ? repos.length : 0}</span>
-					</h2>
-					{repos && repos.length > 0 ? (
-						<div id="repoList" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-							{repos.map((repo: any) => <RepoCard repo={repo} />)}
-						</div>
-					) : (
-						<p class="text-gray-500">No repositories found.</p>
-					)}
-					<div id="noReposMsg" class="hidden text-gray-500 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 text-center">No repositories match your filter.</div>
-					
-					<div class="mt-6 flex justify-center">
-						<button id="showMoreReposBtn" class="hidden px-6 py-2.5 bg-white border border-gray-300 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm">
-							Show More Repositories
-						</button>
-					</div>
-				</section>
+                
+                <!-- Hidden repo elements so the shared filter.js doesn't crash if it looks for them -->
+                <div id="repoCount" class="hidden text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full"></div>
+                <div id="noReposMsg" class="hidden"></div>
+                <button id="showMoreReposBtn" class="hidden"></button>
 
 			</main>
 		</div>

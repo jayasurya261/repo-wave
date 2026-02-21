@@ -1,3 +1,7 @@
+---
+import '../styles/global.css';
+import Navbar from '../components/Navbar.astro';
+---
 <!doctype html>
 <html lang="en">
 	<head>
@@ -8,8 +12,11 @@
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro Basics</title>
 	</head>
-	<body>
-		<slot />
+	<body class="bg-gray-50 flex flex-col min-h-screen">
+		<Navbar />
+		<main class="flex-grow">
+			<slot />
+		</main>
 	</body>
 </html>
 

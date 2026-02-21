@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
+import SidebarFilter from '../components/SidebarFilter.astro';
+import SearchBar from '../components/SearchBar.astro';
+import RepoCard from '../components/RepoCard.astro';
+
+// Fetch repos ordered by stars
+const { data: repos, error } = await supabase
+	.from('repos')
+	.select('*')
+	.order('stars', { ascending: false });
+
+// Extract unique languages from repos for the filter panel
+const uniqueLanguages = repos 
+	? [...new Set(repos.map(r => r.language).filter(Boolean))].sort()
+	: [];
+---
+
+<Layout>
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+		{error && (
+			<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-8">
+				<p class="font-semibold">Error fetching data</p>
+				<p class="text-sm mt-1">{error.message}</p>
+			</div>
+		)}
+
+		<!-- Main Layout with Sidebar and Content -->
+		<div class="flex flex-col md:flex-row gap-8">
+			
+			<SidebarFilter uniqueLanguages={uniqueLanguages} />
+
+			<!-- Main Content Area -->
+			<main class="flex-grow min-w-0">
+				
+				<SearchBar />
+
+				<!-- Repos Section -->
+				<section>
+					<h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+						Repositories
+						<span id="repoCount" class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{repos ? repos.length : 0}</span>
+					</h2>
+					{repos && repos.length > 0 ? (
+						<div id="repoList" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+							{repos.map((repo: any) => <RepoCard repo={repo} />)}
+						</div>
+					) : (
+						<p class="text-gray-500">No repositories found.</p>
+					)}
+					<div id="noReposMsg" class="hidden text-gray-500 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 text-center">No repositories match your filter.</div>
+					<div id="paginationContainer" class="mt-8"></div>
+				</section>
+                
+                <!-- Hidden issue elements so the shared filter.js doesn't crash if it looks for them -->
+                <div id="issueCount" class="hidden text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full"></div>
+                <div id="noIssuesMsg" class="hidden"></div>
+                <button id="showMoreIssuesBtn" class="hidden"></button>
+
+			</main>
+		</div>
+	</div>
+</Layout>
+
+<script is:inline src="/filter.js"></script>
