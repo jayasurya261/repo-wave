@@ -39,26 +39,29 @@ function renderPagination(totalItemsCount) {
     // Prev Button
     const prevBtn = document.createElement('button');
     prevBtn.innerHTML = '&laquo; Prev';
+    prevBtn.setAttribute('aria-label', 'Previous Page');
     prevBtn.className = `px-3 py-1 rounded-md text-sm font-medium ${currentPage === 1 ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'}`;
     prevBtn.disabled = currentPage === 1;
-    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; filterContent(); window.scrollTo(0, 0); } };
+    prevBtn.onclick = function () { if (currentPage > 1) { showLoadingSpinner(() => { currentPage--; filterContent(); window.scrollTo(0, 0); }, this); } };
     nav.appendChild(prevBtn);
 
     // Page Numbers
     for (let i = 1; i <= totalPages; i++) {
         const pageBtn = document.createElement('button');
         pageBtn.innerText = i.toString();
+        pageBtn.setAttribute('aria-label', `Page ${i}`);
         pageBtn.className = `px-3 py-1 rounded-md text-sm font-medium border ${currentPage === i ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`;
-        pageBtn.onclick = () => { currentPage = i; filterContent(); window.scrollTo(0, 0); };
+        pageBtn.onclick = function () { showLoadingSpinner(() => { currentPage = i; filterContent(); window.scrollTo(0, 0); }, this); };
         nav.appendChild(pageBtn);
     }
 
     // Next Button
     const nextBtn = document.createElement('button');
     nextBtn.innerHTML = 'Next &raquo;';
+    nextBtn.setAttribute('aria-label', 'Next Page');
     nextBtn.className = `px-3 py-1 rounded-md text-sm font-medium ${currentPage === totalPages ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'}`;
     nextBtn.disabled = currentPage === totalPages;
-    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; filterContent(); window.scrollTo(0, 0); } };
+    nextBtn.onclick = function () { if (currentPage < totalPages) { showLoadingSpinner(() => { currentPage++; filterContent(); window.scrollTo(0, 0); }, this); } };
     nav.appendChild(nextBtn);
 
     paginationContainer.appendChild(nav);
@@ -80,11 +83,13 @@ function filterContent() {
         const el = card;
         const name = el.getAttribute('data-name') || '';
         const lang = el.getAttribute('data-lang') || '';
+        const diff = el.getAttribute('data-difficulty') || '';
 
         const matchesSearch = name.includes(searchTerm);
         const matchesLang = selectedLang === 'all' || lang === selectedLang;
+        const matchesDiff = selectedDiff === 'all' || diff === selectedDiff;
 
-        if (matchesSearch && matchesLang) {
+        if (matchesSearch && matchesLang && matchesDiff) {
             matchingReposCount++;
 
             if (isDashboard) {
@@ -179,6 +184,40 @@ function filterContent() {
     }
 }
 
+function showLoadingSpinner(callback, btnElement) {
+    if (!btnElement) {
+        callback();
+        return;
+    }
+
+    const originalText = btnElement.innerHTML;
+    const originalWidth = btnElement.offsetWidth;
+
+    // Set fixed width so button doesn't shrink when text is replaced
+    if (originalWidth > 0) {
+        btnElement.style.width = `${originalWidth}px`;
+    }
+
+    // Disable button and add spinner
+    btnElement.disabled = true;
+    btnElement.innerHTML = `
+        <svg class="animate-spin h-5 w-5 text-green-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    `;
+
+    // Simulate network delay
+    setTimeout(() => {
+        // Restore button state
+        btnElement.innerHTML = originalText;
+        btnElement.style.width = '';
+        btnElement.disabled = false;
+
+        callback();
+    }, 400);
+}
+
 function resetLimits() {
     reposLimit = 10;
     issuesLimit = 10;
@@ -199,16 +238,20 @@ difficultyRadios.forEach(radio => {
 });
 
 if (showMoreReposBtn) {
-    showMoreReposBtn.addEventListener('click', () => {
-        reposLimit += 10;
-        filterContent();
+    showMoreReposBtn.addEventListener('click', function () {
+        showLoadingSpinner(() => {
+            reposLimit += 10;
+            filterContent();
+        }, this);
     });
 }
 
 if (showMoreIssuesBtn) {
-    showMoreIssuesBtn.addEventListener('click', () => {
-        issuesLimit += 10;
-        filterContent();
+    showMoreIssuesBtn.addEventListener('click', function () {
+        showLoadingSpinner(() => {
+            issuesLimit += 10;
+            filterContent();
+        }, this);
     });
 }
 

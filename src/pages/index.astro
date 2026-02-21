@@ -33,7 +33,7 @@ const uniqueLanguages = repos
 	: [];
 ---
 
-<Layout>
+<Layout title="Dashboard | Open Source Finder" description="Browse top open-source repositories and discover beginner-friendly issues to contribute to today.">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
 		{error && (
@@ -55,12 +55,12 @@ const uniqueLanguages = repos
 
 				<!-- Issues Section -->
 				<section class="mb-12">
-					<h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+					<h1 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
 						Recent Issues
 						<span id="issueCount" class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{issues ? issues.length : 0}</span>
-					</h2>
+					</h1>
 					{issues && issues.length > 0 ? (
-						<div id="issueList" class="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+						<div id="issueList" class="bg-white rounded-xl shadow-sm border border-green-500 divide-y divide-gray-100">
 							{issues.map((issue: any) => <IssueCard issue={issue} />)}
 						</div>
 					) : (

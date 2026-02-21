@@ -31,7 +31,7 @@ const issues = issuesRaw?.map((issue: any) => ({
 const error = reposError || issuesError;
 ---
 
-<Layout>
+<Layout title="All Issues | Open Source Finder" description="Browse all beginner-friendly open-source issues to kickstart your contributions.">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
 		{error && (
@@ -53,12 +53,12 @@ const error = reposError || issuesError;
 
 				<!-- Issues Section -->
 				<section class="mb-12">
-					<h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+					<h1 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
 						All Issues
 						<span id="issueCount" class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{issues ? issues.length : 0}</span>
-					</h2>
+					</h1>
 					{issues && issues.length > 0 ? (
-						<div id="issueList" class="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+						<div id="issueList" class="bg-white rounded-xl shadow-sm border border-green-500 divide-y divide-gray-100">
 							{issues.map((issue: any) => <IssueCard issue={issue} />)}
 						</div>
 					) : (

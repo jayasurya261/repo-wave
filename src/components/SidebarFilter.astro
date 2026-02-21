@@ -6,7 +6,7 @@ const { uniqueLanguages } = Astro.props;
 ---
 
 <aside class="w-full md:w-64 flex-shrink-0">
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sticky top-6">
+	<div class="bg-white rounded-xl shadow-sm border border-green-500 p-5 sticky top-6">
 		<h3 class="text-lg font-bold text-gray-900 mb-4">Filter by Language</h3>
 		<div class="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
 			<label class="flex items-center gap-3 cursor-pointer group">
@@ -22,28 +22,28 @@ const { uniqueLanguages } = Astro.props;
 		</div>
 	</div>
 
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 sticky top-[28rem] mt-6">
+	<div class="bg-white rounded-xl shadow-sm border border-green-500 p-5 sticky top-[28rem] mt-6">
 		<h3 class="text-lg font-bold text-gray-900 mb-4">Filter by Difficulty</h3>
 		<div class="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
 			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="difficulty" value="all" checked class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+				<input type="radio" name="difficulty" value="all" checked class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Any Difficulty">
 				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Any Difficulty</span>
 			</label>
 			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="difficulty" value="easy" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Easy (0-3)</span>
+				<input type="radio" name="difficulty" value="easy" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Easy Difficulty">
+				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Easy</span>
 			</label>
 			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="difficulty" value="medium" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Medium (3-6)</span>
+				<input type="radio" name="difficulty" value="medium" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Medium Difficulty">
+				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Medium</span>
 			</label>
 			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="difficulty" value="hard" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Hard (6-8)</span>
+				<input type="radio" name="difficulty" value="hard" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Hard Difficulty">
+				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Hard</span>
 			</label>
 			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="difficulty" value="very-hard" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Very Hard (8-10)</span>
+				<input type="radio" name="difficulty" value="very-hard" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Very Hard Difficulty">
+				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Very Hard</span>
 			</label>
 		</div>
 	</div>

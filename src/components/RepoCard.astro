@@ -1,37 +1,102 @@
 ---
+import { supabase } from '../lib/supabase';
+
 export interface Props {
     repo: any;
 }
 const { repo } = Astro.props;
+
+let diffCategory = 'all';
+if (repo.health_score != null) {
+    if (repo.health_score >= 75) diffCategory = 'easy';
+    else if (repo.health_score >= 50) diffCategory = 'medium';
+    else if (repo.health_score >= 25) diffCategory = 'hard';
+    else diffCategory = 'very-hard';
+}
+
+const { data: repoIssues } = await supabase
+    .from('issues')
+    .select('*')
+    .eq('repo_id', repo.full_name)
+    .order('created_at', { ascending: false });
 ---
-<div data-type="repo" data-name={repo.name.toLowerCase()} data-lang={repo.language} class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
-    <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-semibold text-gray-900 truncate">{repo.name}</h3>
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-            {repo.language}
-        </span>
-    </div>
-    <div class="text-sm text-gray-500 mb-4 flex items-center justify-between">
-        <span class="truncate">{repo.full_name}</span>
-        {repo.last_active && (
-            <span class="text-xs px-2 py-0.5 rounded bg-gray-100 whitespace-nowrap" title="Last Active">
-                Active: {new Date(repo.last_active).toLocaleDateString()}
+<div data-type="repo" data-name={repo.name.toLowerCase()} data-lang={repo.language} data-difficulty={diffCategory} class="bg-white rounded-xl shadow-sm border border-green-500 hover:shadow-md transition-shadow flex flex-col overflow-hidden">
+    <div class="p-5 flex-grow">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-semibold text-gray-900 truncate">{repo.name}</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                {repo.language}
             </span>
-        )}
-    </div>
-    <div class="flex items-center gap-4 text-sm text-gray-600">
-        <span class="flex items-center gap-1" title="Stars">
-            <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-            {repo.stars.toLocaleString()}
-        </span>
-        <span class="flex items-center gap-1" title="Forks">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-            {repo.forks.toLocaleString()}
-        </span>
-        {repo.health_score != null && (
-            <span class={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${repo.health_score >= 75 ? 'bg-green-100 text-green-800' : repo.health_score >= 50 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                Difficulty: {repo.health_score >= 75 ? 'Easy' : repo.health_score >= 50 ? 'Medium' : repo.health_score >= 25 ? 'Hard' : 'Very Hard'}
+        </div>
+        <div class="text-sm text-gray-500 mb-4 flex items-center justify-between">
+            <span class="truncate">{repo.full_name}</span>
+            {repo.last_active && (
+                <span class="text-xs px-2 py-0.5 rounded bg-gray-100 whitespace-nowrap" title="Last Active">
+                    Active: {new Date(repo.last_active).toLocaleDateString()}
+                </span>
+            )}
+        </div>
+        <div class="flex items-center gap-4 text-sm text-gray-600">
+            <span class="flex items-center gap-1" title="Stars">
+                <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                {repo.stars.toLocaleString()}
             </span>
-        )}
+            <span class="flex items-center gap-1" title="Forks">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                {repo.forks.toLocaleString()}
+            </span>
+            {repo.health_score != null && (
+                <span class={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${repo.health_score >= 75 ? 'bg-green-100 text-green-800' : repo.health_score >= 50 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                    Difficulty: {repo.health_score >= 75 ? 'Easy' : repo.health_score >= 50 ? 'Medium' : repo.health_score >= 25 ? 'Hard' : 'Very Hard'}
+                </span>
+            )}
+        </div>
+    </div>
+    <div class="bg-gray-50 border-t border-gray-100 w-full mt-auto">
+        <details class="group">
+            <summary class="p-4 flex items-center justify-between cursor-pointer w-full text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 transition-colors list-none outline-none">
+                <span>View Active Issues ({repoIssues ? repoIssues.length : 0})</span>
+                <span class="transition-transform group-open:rotate-180">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </span>
+            </summary>
+            
+            <div class="p-4 pt-0 space-y-3 max-h-60 overflow-y-auto custom-scrollbar bg-gray-50">
+                {repoIssues && repoIssues.length > 0 ? (
+                    repoIssues.map((issue: any) => (
+                        <div class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <a href={issue.url} target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline block truncate mb-1" title={issue.title}>
+                                {issue.title}
+                            </a>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-500">
+                                    {new Date(issue.created_at).toLocaleDateString()}
+                                </span>
+                                {issue.difficulty_score != null && (
+                                    <span class={`text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded ${
+                                        issue.difficulty_score <= 25 ? 'bg-green-100 text-green-800' : 
+                                        issue.difficulty_score <= 50 ? 'bg-yellow-100 text-yellow-800' : 
+                                        issue.difficulty_score <= 75 ? 'bg-orange-100 text-orange-800' : 
+                                        'bg-red-100 text-red-800'
+                                    }`}>
+                                        {issue.difficulty_score <= 25 ? 'Easy' : issue.difficulty_score <= 50 ? 'Medium' : issue.difficulty_score <= 75 ? 'Hard' : 'Very Hard'}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p class="text-sm text-gray-500 italic pb-2">No active issues found for this repository.</p>
+                )}
+            </div>
+        </details>
     </div>
 </div>
+<!-- Custom style to hide the default summary marker in Safari/Firefox -->
+<style>
+    details > summary::-webkit-details-marker {
+        display: none;
+    }
+</style>

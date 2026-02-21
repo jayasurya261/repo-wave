@@ -6,10 +6,12 @@ const { issue } = Astro.props;
 const labels: any[] = Array.isArray(issue.labels) ? issue.labels : [];
 const diffScore = issue.difficulty_score || 0;
 let diffCategory = 'all';
-if (diffScore <= 3) diffCategory = 'easy';
-else if (diffScore <= 6) diffCategory = 'medium';
-else if (diffScore <= 8) diffCategory = 'hard';
-else diffCategory = 'very-hard';
+if (issue.difficulty_score != null) {
+    if (diffScore <= 25) diffCategory = 'easy';
+    else if (diffScore <= 50) diffCategory = 'medium';
+    else if (diffScore <= 75) diffCategory = 'hard';
+    else diffCategory = 'very-hard';
+}
 ---
 <div data-type="issue" data-title={issue.title.toLowerCase()} data-repo={issue.repo_id.toLowerCase()} data-difficulty={diffCategory} class="p-4 hover:bg-gray-50 transition-colors">
     <div class="flex items-start justify-between gap-4">

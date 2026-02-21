@@ -17,7 +17,7 @@ const uniqueLanguages = repos
 	: [];
 ---
 
-<Layout>
+<Layout title="Repositories | Open Source Finder" description="Explore the highest-rated open-source repositories by language, health score, and difficulty.">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
 		{error && (
@@ -39,10 +39,10 @@ const uniqueLanguages = repos
 
 				<!-- Repos Section -->
 				<section>
-					<h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+					<h1 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
 						Repositories
 						<span id="repoCount" class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{repos ? repos.length : 0}</span>
-					</h2>
+					</h1>
 					{repos && repos.length > 0 ? (
 						<div id="repoList" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
 							{repos.map((repo: any) => <RepoCard repo={repo} />)}
