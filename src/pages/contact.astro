@@ -1,0 +1,46 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Contact Us | Repo Wave" description="Get in touch with the Repo Wave team for support, inquiries, or feedback.">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12">
+      <h1 class="text-4xl font-extrabold text-gray-900 mb-8 tracking-tight">Contact Us</h1>
+      
+      <div class="prose prose-lg text-gray-600 mb-10">
+        <p>
+          We'd love to hear from you! Whether you have a question about discovering open-source repositories, feedback on our platform, or just want to say hi, feel free to drop us a message.
+        </p>
+      </div>
+
+      <div class="bg-gray-50 rounded-xl p-8 border border-gray-100 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Send Us an Email</h2>
+        <p class="text-gray-600 mb-6 font-medium">
+          You can reach us directly at:
+          <a href="mailto:support@repowave.com" class="text-indigo-600 hover:text-indigo-800 transition-colors ml-2 underline">support@repowave.com</a>
+        </p>
+
+        <form action="mailto:support@repowave.com" method="post" enctype="text/plain" class="space-y-6">
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+            <input type="text" id="name" name="name" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3 border" placeholder="John Doe" required />
+          </div>
+          
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Your Email</label>
+            <input type="email" id="email" name="email" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3 border" placeholder="john@example.com" required />
+          </div>
+          
+          <div>
+            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+            <textarea id="message" name="message" rows="5" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-3 border" placeholder="How can we help you?" required></textarea>
+          </div>
+          
+          <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+            Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</Layout>
