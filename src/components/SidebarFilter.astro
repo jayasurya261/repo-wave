@@ -5,46 +5,96 @@ export interface Props {
 const { uniqueLanguages } = Astro.props;
 ---
 
-<aside class="w-full md:w-64 flex-shrink-0">
-	<div class="bg-white rounded-xl shadow-sm border border-green-500 p-5 sticky top-6">
-		<h3 class="text-lg font-bold text-gray-900 mb-4">Filter by Language</h3>
-		<div class="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="language" value="all" checked class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">All Languages</span>
-			</label>
-			{uniqueLanguages.map((lang: any) => (
-				<label class="flex items-center gap-3 cursor-pointer group">
-					<input type="radio" name="language" value={lang} class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-					<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">{lang}</span>
-				</label>
-			))}
-		</div>
-	</div>
+<aside class="w-full md:w-64 flex-shrink-0 sticky top-16 md:top-6 z-40 bg-gray-50 md:bg-transparent pb-4 md:pb-0">
+	<details class="group md:block" id="filter-accordion">
+		<!-- Summary visible only on mobile -->
+		<summary class="md:hidden flex items-center justify-between bg-white border border-green-500 rounded-xl p-4 shadow-sm font-bold text-gray-900 cursor-pointer list-none">
+			<div class="flex items-center gap-2">
+				<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+				<span>Filters</span>
+			</div>
+			<svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+		</summary>
 
-	<div class="bg-white rounded-xl shadow-sm border border-green-500 p-5 sticky top-[28rem] mt-6">
-		<h3 class="text-lg font-bold text-gray-900 mb-4">Filter by Difficulty</h3>
-		<div class="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="difficulty" value="all" checked class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Any Difficulty">
-				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Any Difficulty</span>
-			</label>
-			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="difficulty" value="easy" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Easy Difficulty">
-				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Easy</span>
-			</label>
-			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="difficulty" value="medium" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Medium Difficulty">
-				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Medium</span>
-			</label>
-			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="difficulty" value="hard" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Hard Difficulty">
-				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Hard</span>
-			</label>
-			<label class="flex items-center gap-3 cursor-pointer group">
-				<input type="radio" name="difficulty" value="very-hard" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Very Hard Difficulty">
-				<span class="text-gray-700 group-hover:text-indigo-600 transition-colors">Very Hard</span>
-			</label>
+		<div class="mt-2 md:mt-0 space-y-6 hidden group-open:block md:block absolute md:static left-0 right-0 bg-gray-50 md:bg-transparent p-2 md:p-0 rounded-xl max-h-[70vh] md:max-h-none overflow-y-auto shadow-lg md:shadow-none border md:border-none border-gray-200 z-50">
+			<!-- Language Filter -->
+			<div class="bg-white rounded-xl shadow-sm border border-green-500 p-4 md:p-5">
+				<h3 class="text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4">Filter by Language</h3>
+				<div class="space-y-2 max-h-48 md:max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
+						<input type="radio" name="language" value="all" checked class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+						<span class="text-sm md:text-base text-gray-700 group-hover/label:text-indigo-600 transition-colors">All Languages</span>
+					</label>
+					{uniqueLanguages.map((lang: any) => (
+						<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
+							<input type="radio" name="language" value={lang} class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+							<span class="text-sm md:text-base text-gray-700 group-hover/label:text-indigo-600 transition-colors">{lang}</span>
+						</label>
+					))}
+				</div>
+			</div>
+
+			<!-- Difficulty Filter -->
+			<div class="bg-white rounded-xl shadow-sm border border-green-500 p-4 md:p-5">
+				<h3 class="text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4">Filter by Difficulty</h3>
+				<div class="space-y-2 max-h-48 md:max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
+						<input type="radio" name="difficulty" value="all" checked class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Any Difficulty">
+						<span class="text-sm md:text-base text-gray-700 group-hover/label:text-indigo-600 transition-colors">Any Difficulty</span>
+					</label>
+					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
+						<input type="radio" name="difficulty" value="easy" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Easy Difficulty">
+						<span class="text-sm md:text-base text-gray-700 group-hover/label:text-indigo-600 transition-colors">Easy</span>
+					</label>
+					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
+						<input type="radio" name="difficulty" value="medium" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Medium Difficulty">
+						<span class="text-sm md:text-base text-gray-700 group-hover/label:text-indigo-600 transition-colors">Medium</span>
+					</label>
+					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
+						<input type="radio" name="difficulty" value="hard" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Hard Difficulty">
+						<span class="text-sm md:text-base text-gray-700 group-hover/label:text-indigo-600 transition-colors">Hard</span>
+					</label>
+					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
+						<input type="radio" name="difficulty" value="very-hard" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" aria-label="Filter by Very Hard Difficulty">
+						<span class="text-sm md:text-base text-gray-700 group-hover/label:text-indigo-600 transition-colors">Very Hard</span>
+					</label>
+				</div>
+			</div>
 		</div>
-	</div>
+	</details>
 </aside>
+
+<style>
+	/* Hide the default marker for details summary */
+	details > summary::-webkit-details-marker {
+		display: none;
+	}
+</style>
+
+<script>
+	// Make sure the accordion is generally open on desktop, and closed on mobile automatically inside Astro lifecycle if needed.
+	// We handle this via CSS `group-open:block md:block` primarily, but this script ensures the `open` attribute is correctly synced when resizing.
+	function handleResize() {
+		const details = document.getElementById('filter-accordion') as HTMLDetailsElement;
+		if (details) {
+			if (window.innerWidth >= 768) {
+				details.setAttribute('open', '');
+			} else if (details.hasAttribute('open') && !details.classList.contains('user-toggled')) {
+				// Don't auto-close if user explicitly toggled it open
+				// details.removeAttribute('open'); // Optional: auto close on shrinking screen
+			}
+		}
+	}
+	
+	window.addEventListener('resize', handleResize);
+	
+	// Initial check
+	document.addEventListener('astro:page-load', () => {
+		handleResize();
+		const details = document.getElementById('filter-accordion');
+		if(details){
+			details.addEventListener('toggle', (e) => details.classList.add('user-toggled'));
+		}
+	});
+	handleResize();
+</script>

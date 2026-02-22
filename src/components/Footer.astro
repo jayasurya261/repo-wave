@@ -4,15 +4,18 @@ const currentYear = new Date().getFullYear();
 
 <footer class="bg-green-900 text-white mt-auto">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-      <div class="flex items-center space-x-2">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-6">
+      <div class="flex flex-col space-y-4 max-w-sm">
         <a href="/" class="flex flex-col">
           <span class="font-bold text-xl text-white tracking-tight">Repo Wave</span>
           <span class="text-sm text-green-200">Discover & Contribute</span>
         </a>
+        <p class="text-sm text-green-200 leading-relaxed">
+          Repo Wave is your gateway to the open-source world. We curate top repositories and highlight beginner-friendly issues to help you make your first contribution with confidence.
+        </p>
       </div>
       
-      <nav class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+      <nav class="flex flex-wrap gap-x-8 gap-y-4">
         <a href="/about" class="text-sm text-green-50 hover:text-green-300 transition-colors">About Us</a>
         <a href="/contact" class="text-sm text-green-50 hover:text-green-300 transition-colors">Contact</a>
         <a href="/privacy-policy" class="text-sm text-green-50 hover:text-green-300 transition-colors">Privacy Policy</a>
@@ -20,7 +23,7 @@ const currentYear = new Date().getFullYear();
       </nav>
     </div>
     
-    <div class="mt-8 border-t border-green-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-green-200 gap-4">
+    <div class="mt-12 border-t border-green-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-green-200 gap-4">
       <p>&copy; {currentYear} Repo Wave. All rights reserved.</p>
       <p>Building a stronger open-source community, one commit at a time.</p>
     </div>

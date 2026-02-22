@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const guides = [
+  {
+    title: "How to Find Good First Issues",
+    description: "A step-by-step guide to discovering low-barrier tasks perfect for beginners making their first open-source contribution.",
+    href: "/guide/finding-good-first-issues",
+    readTime: "5 min read"
+  },
+  {
+    title: "GitHub Contribution Guide",
+    description: "The complete workflow from forking a repository to opening a Pull Request. Learn the etiquette of open-source collaboration.",
+    href: "/guide/github-contribution-guide",
+    readTime: "8 min read"
+  },
+  {
+    title: "Open Source Beginner Roadmap",
+    description: "A comprehensive roadmap outlining what to learn, when to learn it, and how to gradually level up your open-source skills.",
+    href: "/guide/open-source-beginner-roadmap",
+    readTime: "6 min read"
+  },
+  {
+    title: "How Maintainers Review PRs",
+    description: "Get inside the mind of an open-source maintainer. Understand what they look for, so your Pull Requests get merged faster.",
+    href: "/guide/how-maintainers-review-prs",
+    readTime: "4 min read"
+  },
+  {
+    title: "Common Git Mistakes & Fixes",
+    description: "Accidentally committed to main? Messed up a rebase? Here are the most common Git mistakes beginners make and how to easily fix them.",
+    href: "/guide/common-git-mistakes",
+    readTime: "7 min read"
+  }
+];
+---
+
+<Layout title="Open Source Guides | Repo Wave" description="Detailed guides and tutorials on how to master open-source contributions, Git, and GitHub.">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="mb-12">
+      <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-4">Open Source Guide</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">Everything you need to know about making meaningful contributions to open-source software, written simply and clearly.</p>
+    </div>
+
+    <div class="space-y-6">
+      {guides.map((guide, index) => (
+        <a href={guide.href} class="block group">
+          <article class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 hover:border-green-500 hover:shadow-md transition-all">
+            <div class="flex items-center gap-3 mb-3 text-sm font-medium text-gray-500">
+              <span class="bg-gray-100 px-2 py-1 rounded text-indigo-700">Part {index + 1}</span>
+              <span>&middot;</span>
+              <span>{guide.readTime}</span>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors mb-3">
+              {guide.title}
+            </h2>
+            <p class="text-gray-600 leading-relaxed">
+              {guide.description}
+            </p>
+            <div class="mt-4 flex items-center text-indigo-600 font-medium group-hover:gap-2 transition-all gap-1">
+              Read guide
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </div>
+          </article>
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>

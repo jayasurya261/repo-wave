@@ -1,0 +1,81 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Common Git Mistakes & Fixes | Repo Wave" description="Accidentally committed to main? Messed up a rebase? Here are the most common Git mistakes beginners make and how to easily fix them.">
+  <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <a href="/guide" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Back to Guides
+    </a>
+
+    <header class="mb-10">
+      <div class="flex items-center gap-3 mb-4 text-sm font-medium text-gray-500">
+        <span class="bg-gray-100 px-2 py-1 rounded text-indigo-700">Part 5</span>
+        <span>&middot;</span>
+        <span>7 min read</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">Common Git Mistakes & Fixes</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">Don't panic! Git is basically a giant undo button. Here is how to fix the 5 most common mistakes.</p>
+    </header>
+
+    <div class="prose prose-lg prose-indigo text-gray-700 max-w-none">
+      
+      <h2>1. "I committed to the wrong branch!"</h2>
+      <p>
+        You were working on a new feature, but you forgot to run <code>git checkout -b new-feature</code> and accidentally committed directly to <code>main</code>!
+      </p>
+      <p><strong>The Fix:</strong></p>
+      <pre><code># Move your commit to a new branch
+git branch new-feature
+# Reset main back by one commit (but keep the changes on new-feature)
+git reset HEAD~1 --hard
+# Switch to your new branch
+git checkout new-feature</code></pre>
+
+      <h2>2. "Oh no, there's a typo in my last commit message!"</h2>
+      <p>
+        You wrote <code>git commit -m "fxied login button"</code>. It happens to the best of us!
+      </p>
+      <p><strong>The Fix:</strong> Use the <code>--amend</code> flag.</p>
+      <pre><code>git commit --amend -m "fixed login button"</code></pre>
+      <p class="text-sm italic text-gray-500 mt-2">Note: Only do this if you haven't pushed to GitHub yet. If you have, you'll need to force push <code>git push -f</code>.</p>
+
+      <h2>3. "I want to undo my last commit (but keep the code!)"</h2>
+      <p>
+        You committed too early and realized you still have one more file to add to that commit.
+      </p>
+      <p><strong>The Fix:</strong> Do a "soft" reset. This deletes the commit, but keeps the files modified on your computer.</p>
+      <pre><code>git reset HEAD~1 --soft</code></pre>
+      <p>Now you can make your changes, run <code>git add .</code>, and commit again.</p>
+
+      <h2>4. "My code is a total mess. Just delete my changes and go back to the last commit."</h2>
+      <p>
+        You tried a new approach, it failed spectacularly, and you just want to revert every file back to exactly how it was 30 minutes ago.
+      </p>
+      <p><strong>The Fix:</strong> Do a "hard" reset.</p>
+      <div class="bg-red-50 border-l-4 border-red-500 p-4 my-4 rounded-r-lg">
+        <p class="text-red-800 font-medium m-0"><strong>Warning:</strong> A hard reset permanently deletes any uncommitted changes. You cannot get them back.</p>
+      </div>
+      <pre><code>git reset --hard HEAD</code></pre>
+
+      <h2>5. "I have merge conflicts and I'm terrified!"</h2>
+      <p>
+        You ran <code>git pull</code> and saw the dreaded: <code>CONFLICT (content): Merge conflict in file.js</code>
+      </p>
+      <p><strong>The Fix:</strong> Open the file in your code editor (like VS Code). You will see weird arrows in your code:</p>
+      <pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+const color = "blue";
+=======
+const color = "red";
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; incoming-branch</code></pre>
+      <p>VS Code normally gives you buttons above this block saying "Accept Current Change" or "Accept Incoming Change". Click the one you want, save the file, then run:</p>
+      <pre><code>git add file.js
+git commit -m "resolved merge conflict"</code></pre>
+
+      <hr class="my-10 border-gray-200" />
+      <p class="text-xl font-bold text-center text-gray-900 mt-12 mb-4">You are ready!</p>
+      <p class="text-center">Go back to the <a href="/issues" class="text-indigo-600 hover:underline">Issues page</a> and start your open-source journey.</p>
+    </div>
+  </article>
+</Layout>

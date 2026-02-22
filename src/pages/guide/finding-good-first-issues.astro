@@ -1,0 +1,83 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="How to Find Good First Issues | Repo Wave" description="A step-by-step guide to discovering low-barrier tasks perfect for beginners making their first open-source contribution.">
+  <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <a href="/guide" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Back to Guides
+    </a>
+
+    <header class="mb-10">
+      <div class="flex items-center gap-3 mb-4 text-sm font-medium text-gray-500">
+        <span class="bg-gray-100 px-2 py-1 rounded text-indigo-700">Part 1</span>
+        <span>&middot;</span>
+        <span>5 min read</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">How to Find Good First Issues</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">Finding the right issue is half the battle. Here is exactly how to find tasks that are welcoming to beginners.</p>
+    </header>
+
+    <div class="prose prose-lg prose-indigo text-gray-700 max-w-none">
+      
+      <h2>What is a "Good First Issue"?</h2>
+      <p>
+        Maintainers know that large codebases are intimidating. To help newcomers, they add specific labels to easy bugs, small feature requests, or documentation typos. The most common labels are:
+      </p>
+      <ul>
+        <li><code>good first issue</code></li>
+        <li><code>beginner-friendly</code></li>
+        <li><code>help wanted</code></li>
+        <li><code>documentation</code></li>
+      </ul>
+
+      <h2>Step 1: Pick a Language You Know</h2>
+      <p>
+        Don't try to learn a new language <em>and</em> learn open source at the same time. If you know JavaScript, filter for JavaScript repositories. <strong>Repo Wave</strong> makes this simple: use the language filter on the sidebar of our <a href="/issues">Issues page</a>.
+      </p>
+
+      <h2>Step 2: Look for Active Repositories</h2>
+      <p>
+        There is nothing worse than making a Pull Request and waiting 6 months for a reply. Before claiming an issue, check the repository:
+      </p>
+      <ol>
+        <li>When was the last commit? (Should be within the last month)</li>
+        <li>Are there recent merged Pull Requests?</li>
+        <li>Do the maintainers respond to issues?</li>
+      </ol>
+
+      <div class="bg-blue-50 border-l-4 border-blue-500 p-4 my-6 rounded-r-lg">
+        <p class="text-blue-800 font-medium m-0"><strong>Pro Tip:</strong> On Repo Wave, the repository health score automatically calculates this for you. Stick to "Easy" difficulty/high health score repos for your first few PRs.</p>
+      </div>
+
+      <h2>Step 3: Read the Issue Carefully</h2>
+      <p>
+        Once you find an issue labeled <code>good first issue</code>, read the description carefully. A well-written issue will tell you:
+      </p>
+      <ul>
+        <li>What the bug/feature is.</li>
+        <li>Which file needs to be changed.</li>
+        <li>How to test the change.</li>
+      </ul>
+      <p>
+        If the issue only says <em>"Make the button blue"</em> without saying <em>which</em> button or <em>where</em> the file is, it might not be a great first issue unless you're willing to dig around.
+      </p>
+
+      <h2>Step 4: Stake Your Claim</h2>
+      <p>
+        Don't just start coding! Someone else might be working on it. Leave a polite comment on the issue:
+      </p>
+      <blockquote class="bg-gray-50 border-l-4 border-gray-300 italic p-4 text-gray-600 rounded-r-lg">
+        "Hi! I'm a beginner looking to make my first contribution. Is this issue still available? If so, I would love to work on it!"
+      </blockquote>
+      <p>
+        Wait for a maintainer to assign it to you or give you the green light before you spend hours coding.
+      </p>
+
+      <hr class="my-10 border-gray-200" />
+      
+      <p class="text-gray-500 italic">Next up: Ready to code? Read our guide on the <a href="/guide/github-contribution-guide" class="text-indigo-600 hover:underline">GitHub Contribution Workflow</a>.</p>
+    </div>
+  </article>
+</Layout>

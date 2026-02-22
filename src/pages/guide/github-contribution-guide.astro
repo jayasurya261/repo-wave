@@ -1,0 +1,86 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="GitHub Contribution Guide | Repo Wave" description="The complete workflow from forking a repository to opening a Pull Request.">
+  <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <a href="/guide" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Back to Guides
+    </a>
+
+    <header class="mb-10">
+      <div class="flex items-center gap-3 mb-4 text-sm font-medium text-gray-500">
+        <span class="bg-gray-100 px-2 py-1 rounded text-indigo-700">Part 2</span>
+        <span>&middot;</span>
+        <span>8 min read</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">GitHub Contribution Guide</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">The step-by-step workflow for getting your code from your laptop into an open-source project.</p>
+    </header>
+
+    <div class="prose prose-lg prose-indigo text-gray-700 max-w-none">
+      
+      <h2>1. The Fork and Clone</h2>
+      <p>
+        You cannot push code directly to someone else's project. Instead, you create a copy (a fork) on your GitHub account.
+      </p>
+      <ul>
+        <li>Click the <strong>Fork</strong> button in the top right corner of the repository on GitHub.</li>
+        <li>Copy the URL of <em>your</em> fork.</li>
+        <li>Open your terminal and clone it to your computer:</li>
+      </ul>
+      <pre><code>git clone https://github.com/YOUR-USERNAME/repository-name.git
+cd repository-name</code></pre>
+
+      <h2>2. Keep Your Fork Synced</h2>
+      <p>
+        Before you start coding, you need to connect your local copy to the original project (the "upstream") so you can pull the latest changes.
+      </p>
+      <pre><code>git remote add upstream https://github.com/ORIGINAL-OWNER/repository-name.git
+git fetch upstream
+git checkout main
+git merge upstream/main</code></pre>
+
+      <h2>3. Create a Branch</h2>
+      <p>
+        Never make changes on the <code>main</code> branch. Always create a new branch named after the feature or issue.
+      </p>
+      <pre><code>git checkout -b fix-login-button</code></pre>
+
+      <h2>4. Write Code and Commit</h2>
+      <p>
+        Make your changes in your code editor. Test them to make sure nothing is broken. Then, commit your changes.
+      </p>
+      <pre><code>git add .
+git commit -m "fix: updated login button color to blue"</code></pre>
+
+      <div class="bg-blue-50 border-l-4 border-blue-500 p-4 my-6 rounded-r-lg">
+        <p class="text-blue-800 font-medium m-0"><strong>Pro Tip:</strong> Use clear, descriptive commit messages. Many projects use <a href="https://www.conventionalcommits.org/" target="_blank">Conventional Commits</a> (e.g., <code>fix:</code>, <code>feat:</code>, <code>docs:</code>).</p>
+      </div>
+
+      <h2>5. Push Your Changes</h2>
+      <p>
+        Push your new branch up to <em>your</em> fork on GitHub.
+      </p>
+      <pre><code>git push origin fix-login-button</code></pre>
+
+      <h2>6. Open a Pull Request (PR)</h2>
+      <p>
+        Go to the original repository on GitHub. You should see a green button that says <strong>Compare & pull request</strong>. Click it!
+      </p>
+      <p>Fill out the PR template carefully:</p>
+      <ul>
+        <li>Explain <em>why</em> you are making the change.</li>
+        <li>Explain <em>how</em> you tested it.</li>
+        <li>Link the original issue by writing <code>Fixes #123</code> (replace 123 with the issue number). This automatically closes the issue when your PR is merged.</li>
+      </ul>
+
+      <h2>7. Review and Celebrate</h2>
+      <p>
+        The maintainer will review your code. They might ask for changes. Don't take it personally! Just make the changes locally, commit, and push again. The PR updates automatically.
+      </p>
+
+    </div>
+  </article>
+</Layout>

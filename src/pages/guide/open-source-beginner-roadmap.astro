@@ -1,0 +1,63 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Open Source Beginner Roadmap | Repo Wave" description="A comprehensive roadmap outlining what to learn, when to learn it, and how to gradually level up your open-source skills.">
+  <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <a href="/guide" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Back to Guides
+    </a>
+
+    <header class="mb-10">
+      <div class="flex items-center gap-3 mb-4 text-sm font-medium text-gray-500">
+        <span class="bg-gray-100 px-2 py-1 rounded text-indigo-700">Part 3</span>
+        <span>&middot;</span>
+        <span>6 min read</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">Open Source Beginner Roadmap</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">It's easy to get overwhelmed. Here is a clear, step-by-step roadmap to go from complete beginner to open-source maintainer.</p>
+    </header>
+
+    <div class="prose prose-lg prose-indigo text-gray-700 max-w-none">
+      
+      <h2>Phase 1: The Basics (Week 1-2)</h2>
+      <p>Before you ever touch code, you need to understand the ecosystem.</p>
+      <ul>
+        <li><strong>Learn Git Basics:</strong> Understand <code>add</code>, <code>commit</code>, <code>push</code>, <code>pull</code>, <code>branch</code>, and <code>merge</code>.</li>
+        <li><strong>Understand GitHub:</strong> Learn what a Repository, Fork, Pull Request, and Issue mean.</li>
+        <li><strong>Make a non-code contribution:</strong> Fix a typo in a <code>README.md</code>, translate a document, or improve documentation for your favorite library. It sounds small, but it breaks the ice.</li>
+      </ul>
+
+      <h2>Phase 2: Your First Real Issue (Month 1-2)</h2>
+      <p>Now that you know the workflow, it's time to write some code.</p>
+      <ul>
+        <li><strong>Find "Good First Issues":</strong> Use <a href="/issues" class="text-indigo-600 hover:text-indigo-800 underline">Repo Wave</a> to filter for beginner-friendly tasks in a language you already know well.</li>
+        <li><strong>Read the Contributing Guidelines:</strong> Every good project has a <code>CONTRIBUTING.md</code> file. Read it before you start coding; it contains essential setup instructions.</li>
+        <li><strong>Ask for Help:</strong> If you get stuck setting up the project locally, ask on the issue thread! Maintainers are usually happy to help someone who is genuinely trying.</li>
+      </ul>
+
+      <div class="bg-green-50 border-l-4 border-green-500 p-4 my-6 rounded-r-lg">
+        <p class="text-green-800 font-medium m-0"><strong>Goal:</strong> Get 3 small Pull Requests merged into 3 different repositories. This proves you understand the workflow across different environments.</p>
+      </div>
+
+      <h2>Phase 3: Becoming a Regular (Month 3-6)</h2>
+      <p>Instead of jumping randomly from project to project, settle down.</p>
+      <ul>
+        <li><strong>Pick One Project:</strong> Find a project you actively use or love the community of. Focus entirely on it.</li>
+        <li><strong>Tackle Harder Issues:</strong> Move away from <code>good first issue</code> labels. Try fixing complex bugs or adding small features (`help wanted` labels).</li>
+        <li><strong>Review Other People's Code:</strong> You don't need to be a maintainer to review code! Read through open Pull Requests and test them locally. If they work, leave an approving comment. Maintainers notice this.</li>
+        <li><strong>Join the Community:</strong> Join their Discord, Slack, or mailing list. Answer questions from newer users.</li>
+      </ul>
+
+      <h2>Phase 4: Maintainer Status (Year 1+)</h2>
+      <p>At this point, you know the codebase inside out.</p>
+      <ul>
+        <li><strong>Propose Large Features:</strong> Write RFCs (Request for Comments) proposing major architectural changes.</li>
+        <li><strong>Triage Issues:</strong> Help label new bugs, ask users for reproduction steps, and close stale issues.</li>
+        <li><strong>Get Invited:</strong> If you follow Phases 1-3 consistently, maintainers will usually invite you to join the core team to help manage the project!</li>
+      </ul>
+
+    </div>
+  </article>
+</Layout>

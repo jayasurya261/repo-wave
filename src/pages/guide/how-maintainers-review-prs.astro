@@ -1,0 +1,68 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="How Maintainers Review PRs | Repo Wave" description="Understand what open-source maintainers look for so your Pull Requests get merged faster.">
+  <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <a href="/guide" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Back to Guides
+    </a>
+
+    <header class="mb-10">
+      <div class="flex items-center gap-3 mb-4 text-sm font-medium text-gray-500">
+        <span class="bg-gray-100 px-2 py-1 rounded text-indigo-700">Part 4</span>
+        <span>&middot;</span>
+        <span>4 min read</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">How Maintainers Review PRs</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">Ever wonder why a 3-line code change takes two weeks to get merged? Let's take a look behind the curtain.</p>
+    </header>
+
+    <div class="prose prose-lg prose-indigo text-gray-700 max-w-none">
+      
+      <h2>The Life of a Maintainer</h2>
+      <p>
+        The first thing you need to understand is that <strong>95% of open-source maintainers are unpaid volunteers</strong> doing this in their free time on nights and weekends. 
+      </p>
+      <p>
+        When you submit a Pull Request (PR), they have to read your code, understand your logic, run it locally, verify it doesn't break anything else, and deal with CI/CD pipeline failures. That takes time.
+      </p>
+
+      <h2>What Maintainers Look For (The Checklist)</h2>
+      <p>If you want your PR merged quickly, make sure you check all of these boxes before hitting submit:</p>
+
+      <ol>
+        <li>
+          <strong>Did you follow the template?</strong>
+          Most large repos have a PR template. If you delete it and write "fixed bug", your PR will likely be closed. Fill out the description, testing steps, and checklists.
+        </li>
+        <li>
+          <strong>Is the scope narrow?</strong>
+          If you fix a bug in <code>login.js</code>, do not sneak in formatting changes to <code>navbar.js</code> in the same PR. Maintainers hate reviewing "mega PRs" that touch 40 files for un-related reasons. Keep PRs small and focused.
+        </li>
+        <li>
+          <strong>Did you write tests?</strong>
+          If the project uses automated testing for its code, and you submit a new feature without tests, it won't be merged. Maintainers rely on tests to ensure future updates don't break your code.
+        </li>
+        <li>
+          <strong>Did you follow the code style?</strong>
+          If the repo uses 2 spaces for indentation, don't submit code with 4 spaces. Run their linter before pushing (usually <code>npm run lint</code>).
+        </li>
+      </ol>
+
+      <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 my-6 rounded-r-lg">
+        <p class="text-yellow-800 font-medium m-0"><strong>Empathy is Key:</strong> If a maintainer requests changes, do not argue. Say "Thanks for the feedback, I'll update that!" Make the change, and push. You are a guest in their house.</p>
+      </div>
+
+      <h2>How Long Should I Wait?</h2>
+      <p>
+        If a week goes by with no response, it's perfectly fine to leave a polite comment: <em>"Hi @maintainer, just pinging this to see if there is anything I need to change for it to be reviewed. Thanks!"</em>
+      </p>
+      <p>
+        If no one responds after a month, the project might be abandoned. Move on to a healthier, more active repository!
+      </p>
+
+    </div>
+  </article>
+</Layout>
