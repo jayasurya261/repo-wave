@@ -5,11 +5,11 @@ import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
 import RepoCard from '../components/RepoCard.astro';
 
+import { fetchAllRecords } from '../lib/fetchAll';
+
 // Fetch repos ordered by stars
-const { data: repos, error } = await supabase
-	.from('repos')
-	.select('*')
-	.order('stars', { ascending: false });
+const repos = await fetchAllRecords('repos', '*', 'stars', false, 5000);
+const error = null;
 
 // Extract unique languages from repos for the filter panel
 const uniqueLanguages = repos 

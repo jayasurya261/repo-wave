@@ -6,18 +6,15 @@ import SearchBar from '../components/SearchBar.astro';
 import RepoCard from '../components/RepoCard.astro';
 import IssueCard from '../components/IssueCard.astro';
 
+import { fetchAllRecords } from '../lib/fetchAll';
+
 // Fetch repos ordered by stars
-const { data: repos, error: reposError } = await supabase
-	.from('repos')
-	.select('*')
-	.order('stars', { ascending: false });
+const repos = await fetchAllRecords('repos', '*', 'stars', false, 5000);
 
 // Fetch recent issues and join with repos to get language
-const { data: issuesRaw, error: issuesError } = await supabase
-	.from('issues')
-	.select('*, repos(language)')
-	.order('created_at', { ascending: false })
-	.limit(50);
+const issuesRaw = await fetchAllRecords('issues', '*, repos(language)', 'created_at', false, 5000);
+const reposError = null;
+const issuesError = null;
 
 // Map issues to easily extract language from the joined repo
 const issues = issuesRaw?.map((issue: any) => ({

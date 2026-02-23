@@ -34,35 +34,73 @@ function renderPagination(totalItemsCount) {
     if (totalPages <= 1) return;
 
     const nav = document.createElement('nav');
-    nav.className = 'flex items-center justify-center space-x-2 mt-8';
+    nav.className = 'flex flex-wrap items-center justify-center gap-2 mt-8';
+
+    const createBtn = (text, pageNum, isActive, isDisabled, isEllipsis) => {
+        const btn = document.createElement(isEllipsis ? 'span' : 'button');
+        btn.innerHTML = text;
+        if (isEllipsis) {
+            btn.className = 'px-3 py-1 text-gray-500';
+            return btn;
+        }
+
+        btn.className = `px-3 py-1 rounded-md text-sm font-medium border transition-colors ${isActive
+            ? 'bg-indigo-600 text-white border-indigo-600'
+            : isDisabled
+                ? 'text-gray-400 bg-gray-100 border-gray-200 cursor-not-allowed'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+            }`;
+
+        if (isDisabled) {
+            btn.disabled = true;
+        } else {
+            btn.setAttribute('aria-label', typeof pageNum === 'number' ? `Page ${pageNum}` : text);
+            btn.onclick = function () {
+                currentPage = pageNum;
+                filterContent();
+                window.scrollTo(0, 0);
+            };
+        }
+        return btn;
+    };
 
     // Prev Button
-    const prevBtn = document.createElement('button');
-    prevBtn.innerHTML = '&laquo; Prev';
-    prevBtn.setAttribute('aria-label', 'Previous Page');
-    prevBtn.className = `px-3 py-1 rounded-md text-sm font-medium ${currentPage === 1 ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'}`;
-    prevBtn.disabled = currentPage === 1;
-    prevBtn.onclick = function () { if (currentPage > 1) { showLoadingSpinner(() => { currentPage--; filterContent(); window.scrollTo(0, 0); }, this); } };
-    nav.appendChild(prevBtn);
+    nav.appendChild(createBtn('&laquo; Prev', currentPage - 1, false, currentPage === 1, false));
+
+    // Calculate window
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+
+    if (currentPage <= 3) {
+        endPage = Math.min(totalPages, 5);
+    }
+    if (currentPage >= totalPages - 2) {
+        startPage = Math.max(1, totalPages - 4);
+    }
+
+    // First page + ellipsis
+    if (startPage > 1) {
+        nav.appendChild(createBtn('1', 1, false, false, false));
+        if (startPage > 2) {
+            nav.appendChild(createBtn('...', null, false, false, true));
+        }
+    }
 
     // Page Numbers
-    for (let i = 1; i <= totalPages; i++) {
-        const pageBtn = document.createElement('button');
-        pageBtn.innerText = i.toString();
-        pageBtn.setAttribute('aria-label', `Page ${i}`);
-        pageBtn.className = `px-3 py-1 rounded-md text-sm font-medium border ${currentPage === i ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`;
-        pageBtn.onclick = function () { showLoadingSpinner(() => { currentPage = i; filterContent(); window.scrollTo(0, 0); }, this); };
-        nav.appendChild(pageBtn);
+    for (let i = startPage; i <= endPage; i++) {
+        nav.appendChild(createBtn(i.toString(), i, currentPage === i, false, false));
+    }
+
+    // Last page + ellipsis
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            nav.appendChild(createBtn('...', null, false, false, true));
+        }
+        nav.appendChild(createBtn(totalPages.toString(), totalPages, false, false, false));
     }
 
     // Next Button
-    const nextBtn = document.createElement('button');
-    nextBtn.innerHTML = 'Next &raquo;';
-    nextBtn.setAttribute('aria-label', 'Next Page');
-    nextBtn.className = `px-3 py-1 rounded-md text-sm font-medium ${currentPage === totalPages ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'}`;
-    nextBtn.disabled = currentPage === totalPages;
-    nextBtn.onclick = function () { if (currentPage < totalPages) { showLoadingSpinner(() => { currentPage++; filterContent(); window.scrollTo(0, 0); }, this); } };
-    nav.appendChild(nextBtn);
+    nav.appendChild(createBtn('Next &raquo;', currentPage + 1, false, currentPage === totalPages, false));
 
     paginationContainer.appendChild(nav);
 }

@@ -5,10 +5,10 @@ import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
 import IssueCard from '../components/IssueCard.astro';
 
+import { fetchAllRecords } from '../lib/fetchAll';
+
 // We still need repos to extract unique languages for the sidebar filter
-const { data: repos, error: reposError } = await supabase
-	.from('repos')
-	.select('language');
+const repos = await fetchAllRecords('repos', 'language', 'language', true, 5000);
 
 // Extract unique languages from repos for the filter panel
 const uniqueLanguages = repos 
@@ -16,11 +16,9 @@ const uniqueLanguages = repos
 	: [];
 
 // Fetch recent issues and join with repos to get language
-const { data: issuesRaw, error: issuesError } = await supabase
-	.from('issues')
-	.select('*, repos(language)')
-	.order('created_at', { ascending: false })
-	.limit(100);
+const issuesRaw = await fetchAllRecords('issues', '*, repos(language)', 'created_at', false, 5000);
+const reposError = null;
+const issuesError = null;
 
 // Map issues to easily extract language from the joined repo
 const issues = issuesRaw?.map((issue: any) => ({

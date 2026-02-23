@@ -18,7 +18,8 @@ const { data: repoIssues } = await supabase
     .from('issues')
     .select('*')
     .eq('repo_id', repo.full_name)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(5000);
 ---
 <div data-type="repo" data-name={repo.name.toLowerCase()} data-lang={repo.language} data-difficulty={diffCategory} class="bg-white rounded-xl shadow-sm border border-green-500 hover:shadow-md transition-shadow flex flex-col overflow-hidden">
     <div class="p-5 flex-grow">
