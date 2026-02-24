@@ -61,12 +61,20 @@ To get a local copy up and running, follow these simple steps.
    cp .env.example .env
    ```
 
-4. Run the development server:
+4. Setup environment variables for the GitHub scraper:
    ```bash
+   cd github-scraper
+   cp .env.example .env
+   ```
+   *Note: Open `github-scraper/.env` and fill in your `GITHUB_TOKEN` and `DATABASE_URL`.*
+
+5. Return to the root directory and run the development server:
+   ```bash
+   cd ..
    npm run dev
    ```
 
-5. Open your browser and visit `http://localhost:4321`.
+6. Open your browser and visit `http://localhost:4321`.
 
 ## 🤝 Contributing
 
