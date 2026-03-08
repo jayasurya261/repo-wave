@@ -1,0 +1,228 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="404 – Page Not Found | Open Source Finder"
+  description="The page you're looking for doesn't exist. Head back to Open Source Finder to discover repos and issues."
+>
+  <div class="not-found-wrapper">
+    <div class="not-found-card">
+      <!-- Animated illustration -->
+      <div class="illustration" aria-hidden="true">
+        <div class="planet">
+          <div class="crater crater-1"></div>
+          <div class="crater crater-2"></div>
+          <div class="crater crater-3"></div>
+        </div>
+        <div class="orbit">
+          <div class="satellite">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+        </div>
+        <div class="code-badge">404</div>
+      </div>
+
+      <h1 class="title">Lost in Space</h1>
+      <p class="subtitle">
+        Oops! The page you're looking for has drifted off into the cosmos.<br />
+        It might have been moved, deleted, or never existed.
+      </p>
+
+      <div class="actions">
+        <a href="/" class="btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          Back to Home
+        </a>
+        <a href="/repositories" class="btn-secondary">
+          Browse Repositories
+        </a>
+      </div>
+
+      <p class="hint">
+        Looking for something specific? Try browsing our
+        <a href="/issues">open issues</a> or
+        <a href="/repositories">repositories</a>.
+      </p>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .not-found-wrapper {
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+  }
+
+  .not-found-card {
+    text-align: center;
+    max-width: 540px;
+    width: 100%;
+    padding: 3rem 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  /* ── Illustration ── */
+  .illustration {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .planet {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #a78bfa 100%);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.35), inset -12px -8px 24px rgba(0,0,0,0.2);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .crater {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.15);
+  }
+  .crater-1 { width: 22px; height: 22px; top: 22px; left: 28px; }
+  .crater-2 { width: 14px; height: 14px; top: 56px; left: 18px; }
+  .crater-3 { width: 10px; height: 10px; top: 40px; left: 64px; }
+
+  .orbit {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px dashed rgba(99, 102, 241, 0.35);
+    animation: spin 6s linear infinite;
+  }
+
+  .satellite {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 28px;
+    color: #6366f1;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(99,102,241,0.25);
+    padding: 4px;
+  }
+
+  .code-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Text ── */
+  .title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 0.75rem;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: #6b7280;
+    line-height: 1.7;
+    margin: 0 0 2rem;
+  }
+
+  /* ── Actions ── */
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1.4rem;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border-radius: 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1.4rem;
+    background: white;
+    color: #374151;
+    border-radius: 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1.5px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+    border-color: #6366f1;
+    color: #6366f1;
+  }
+
+  .hint {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin: 0;
+  }
+  .hint a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .hint a:hover { text-decoration: underline; }
+
+  /* ── Animations ── */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>

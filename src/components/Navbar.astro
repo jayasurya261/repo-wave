@@ -2,51 +2,71 @@
 const pathname = new URL(Astro.request.url).pathname;
 const currentPath = pathname === '/' ? '/' : pathname;
 ---
-<nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+<nav class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <div class="flex-shrink-0 flex items-center">
                     <a href="/" class="flex items-center">
-                        <img src="https://res.cloudinary.com/dqudvximt/image/upload/v1771714384/Untitled-1_wxhwey.png" alt="App Logo" class="h-10 md:h-14 w-auto">
+                        <img src="https://res.cloudinary.com/dqudvximt/image/upload/v1771714384/Untitled-1_wxhwey.png" alt="App Logo" class="h-10 md:h-14 w-auto dark:brightness-90">
                     </a>
                 </div>
                 <div class="hidden sm:ml-6 sm:flex sm:space-x-4 lg:space-x-8">
-                    <a href="/" class={`${currentPath === '/' ? 'border-green-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
+                    <a href="/" class={`${currentPath === '/' ? 'border-green-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
                         DASHBOARD
                     </a>
-                    <a href="/issues" class={`${currentPath.startsWith('/issues') ? 'border-green-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
+                    <a href="/issues" class={`${currentPath.startsWith('/issues') ? 'border-green-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
                         ISSUES
                     </a>
-                    <a href="/repositories" class={`${currentPath.startsWith('/repositories') ? 'border-green-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
+                    <a href="/repositories" class={`${currentPath.startsWith('/repositories') ? 'border-green-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
                         REPOSITORIES
                     </a>
-                    <a href="/guide" class={`${currentPath.startsWith('/guide') ? 'border-green-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
+                    <a href="/guide" class={`${currentPath.startsWith('/guide') ? 'border-green-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
                         GUIDE
                     </a>
-                    <a href="/about" class={`${currentPath.startsWith('/about') ? 'border-green-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
+                    <a href="/about" class={`${currentPath.startsWith('/about') ? 'border-green-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
                         ABOUT US
                     </a>
-                    <a href="/privacy-policy" class={`${currentPath.startsWith('/privacy-policy') ? 'border-green-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
+                    <a href="/privacy-policy" class={`${currentPath.startsWith('/privacy-policy') ? 'border-green-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
                         PRIVACY
                     </a>
-                    <a href="/terms" class={`${currentPath.startsWith('/terms') ? 'border-green-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
+                    <a href="/terms" class={`${currentPath.startsWith('/terms') ? 'border-green-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} inline-flex items-center px-1 pt-1 border-b-4 text-sm font-medium transition-colors`}>
                         TERMS
                     </a>
                 </div>
             </div>
-            <div class="flex items-center space-x-2 md:space-x-4">
-                <span class="text-xs md:text-sm text-gray-500 hidden sm:block italic font-medium">An open source initiative</span>
-                <a href="https://github.com/jayasurya261/repo-wave" target="_blank" rel="noopener noreferrer" class="text-gray-800 hover:text-black transition-colors" title="View on GitHub">
+            <div class="flex items-center space-x-2 md:space-x-3">
+                <span class="text-xs md:text-sm text-gray-500 dark:text-gray-400 hidden sm:block italic font-medium">An open source initiative</span>
+
+                <!-- Dark mode toggle -->
+                <button
+                    id="theme-toggle"
+                    type="button"
+                    aria-label="Toggle dark mode"
+                    class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                    <!-- Sun icon (shown in dark mode) -->
+                    <svg id="theme-icon-sun" class="hidden h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10A5 5 0 0012 7z"/>
+                    </svg>
+                    <!-- Moon icon (shown in light mode) -->
+                    <svg id="theme-icon-moon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </button>
+
+                <a href="https://github.com/jayasurya261/repo-wave" target="_blank" rel="noopener noreferrer" class="text-gray-800 dark:text-gray-200 hover:text-black dark:hover:text-white transition-colors" title="View on GitHub">
                     <span class="sr-only">GitHub</span>
                     <svg class="h-6 w-6 md:h-8 md:w-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
                     </svg>
                 </a>
-                
+
                 <!-- Mobile menu button -->
-                <div class="flex items-center sm:hidden ml-2">
-                    <button type="button" id="mobile-menu-btn" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500" aria-expanded="false">
+                <div class="flex items-center sm:hidden">
+                    <button type="button" id="mobile-menu-btn" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500" aria-expanded="false">
                         <span class="sr-only">Open main menu</span>
                         <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -57,28 +77,28 @@ const currentPath = pathname === '/' ? '/' : pathname;
         </div>
     </div>
 
-    <!-- Mobile menu, show/hide based on menu state. -->
-    <div class="sm:hidden hidden" id="mobile-menu">
+    <!-- Mobile menu -->
+    <div class="sm:hidden hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800" id="mobile-menu">
         <div class="pt-2 pb-3 space-y-1">
-            <a href="/" class={`${currentPath === '/' ? 'bg-green-50 border-green-500 text-green-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
+            <a href="/" class={`${currentPath === '/' ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors`}>
                 DASHBOARD
             </a>
-            <a href="/issues" class={`${currentPath.startsWith('/issues') ? 'bg-green-50 border-green-500 text-green-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
+            <a href="/issues" class={`${currentPath.startsWith('/issues') ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors`}>
                 ISSUES
             </a>
-            <a href="/repositories" class={`${currentPath.startsWith('/repositories') ? 'bg-green-50 border-green-500 text-green-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
+            <a href="/repositories" class={`${currentPath.startsWith('/repositories') ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors`}>
                 REPOSITORIES
             </a>
-            <a href="/guide" class={`${currentPath.startsWith('/guide') ? 'bg-green-50 border-green-500 text-green-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
+            <a href="/guide" class={`${currentPath.startsWith('/guide') ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors`}>
                 GUIDE
             </a>
-            <a href="/about" class={`${currentPath.startsWith('/about') ? 'bg-green-50 border-green-500 text-green-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
+            <a href="/about" class={`${currentPath.startsWith('/about') ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors`}>
                 ABOUT US
             </a>
-            <a href="/privacy-policy" class={`${currentPath.startsWith('/privacy-policy') ? 'bg-green-50 border-green-500 text-green-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
+            <a href="/privacy-policy" class={`${currentPath.startsWith('/privacy-policy') ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors`}>
                 PRIVACY POLICY
             </a>
-            <a href="/terms" class={`${currentPath.startsWith('/terms') ? 'bg-green-50 border-green-500 text-green-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}>
+            <a href="/terms" class={`${currentPath.startsWith('/terms') ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors`}>
                 TERMS
             </a>
         </div>
@@ -86,12 +106,33 @@ const currentPath = pathname === '/' ? '/' : pathname;
 </nav>
 
 <script>
+    // Mobile menu toggle
     const btn = document.getElementById('mobile-menu-btn');
     const menu = document.getElementById('mobile-menu');
-
     if (btn && menu) {
-        btn.addEventListener('click', () => {
-            menu.classList.toggle('hidden');
+        btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+    }
+
+    // Dark mode toggle
+    const themeBtn = document.getElementById('theme-toggle');
+    const sunIcon = document.getElementById('theme-icon-sun');
+    const moonIcon = document.getElementById('theme-icon-moon');
+
+    function applyTheme(dark) {
+        document.documentElement.classList.toggle('dark', dark);
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+        if (sunIcon) sunIcon.classList.toggle('hidden', !dark);
+        if (moonIcon) moonIcon.classList.toggle('hidden', dark);
+    }
+
+    // Sync icon state on load
+    const isDark = document.documentElement.classList.contains('dark');
+    if (sunIcon) sunIcon.classList.toggle('hidden', !isDark);
+    if (moonIcon) moonIcon.classList.toggle('hidden', isDark);
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            applyTheme(!document.documentElement.classList.contains('dark'));
         });
     }
 </script>

@@ -1,41 +1,60 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { supabase } from '../lib/supabase';
 import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
 import IssueCard from '../components/IssueCard.astro';
-
 import { fetchAllRecords } from '../lib/fetchAll';
 
-// We still need repos to extract unique languages for the sidebar filter
-const repos = await fetchAllRecords('repos', 'language', 'language', true, 5000);
+const PAGE_SIZE = 20;
 
-// Extract unique languages from repos for the filter panel
-const uniqueLanguages = repos 
-	? [...new Set(repos.map(r => r.language).filter(Boolean))].sort()
-	: [];
+let issues: any[] = [];
+let fetchFailed = false;
 
-// Fetch recent issues and join with repos to get language
-const issuesRaw = await fetchAllRecords('issues', '*, repos(language)', 'created_at', false, 5000);
-const reposError = null;
-const issuesError = null;
+try {
+	const issuesRaw = await fetchAllRecords('issues', '*, repos(language)', 'created_at', false, PAGE_SIZE);
+	issues = issuesRaw?.map((issue: any) => ({
+		...issue,
+		language: issue.repos?.language || ''
+	})) ?? [];
+} catch (err) {
+	console.error('[issues] Failed to fetch data from Supabase:', err);
+	fetchFailed = true;
+}
 
-// Map issues to easily extract language from the joined repo
-const issues = issuesRaw?.map((issue: any) => ({
-	...issue,
-	language: issue.repos?.language || ''
-}));
+// Unique languages for sidebar — lightweight distinct query
+let uniqueLanguages: string[] = [];
+try {
+	const langRows = await fetchAllRecords('repos', 'language', 'language', true, 5000);
+	uniqueLanguages = [...new Set(langRows.map((r: any) => r.language).filter(Boolean))].sort() as string[];
+} catch { /* non-fatal */ }
 
-const error = reposError || issuesError;
+// Data freshness
+let lastUpdated: string | null = null;
+try {
+	const { supabase } = await import('../lib/supabase');
+	const { data } = await supabase.from('issues').select('created_at').order('created_at', { ascending: false }).limit(1).single();
+	if (data?.created_at) {
+		const diff = Date.now() - new Date(data.created_at).getTime();
+		const h = Math.floor(diff / 36e5), d = Math.floor(diff / 864e5);
+		lastUpdated = d >= 1 ? `${d}d ago` : h >= 1 ? `${h}h ago` : 'just now';
+	}
+} catch { /* non-fatal */ }
 ---
 
 <Layout title="All Issues | Open Source Finder" description="Browse all beginner-friendly open-source issues to kickstart your contributions.">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-		{error && (
-			<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-8">
-				<p class="font-semibold">Error fetching data</p>
-				<p class="text-sm mt-1">{error.message}</p>
+		{fetchFailed && (
+			<div class="flex items-start gap-3 bg-amber-50 border border-amber-300 text-amber-800 px-5 py-4 rounded-xl mb-8 shadow-sm">
+				<svg class="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+					<line x1="12" y1="9" x2="12" y2="13"/>
+					<line x1="12" y1="17" x2="12.01" y2="17"/>
+				</svg>
+				<div>
+					<p class="font-semibold text-sm">Service temporarily unavailable</p>
+					<p class="text-sm mt-0.5 text-amber-700">We couldn&apos;t load the latest issues right now. Please try refreshing the page in a moment.</p>
+				</div>
 			</div>
 		)}
 
@@ -51,18 +70,24 @@ const error = reposError || issuesError;
 
 				<!-- Issues Section -->
 				<section class="mb-12">
-					<h1 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+					<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
 						All Issues
-						<span id="issueCount" class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{issues ? issues.length : 0}</span>
+						<span id="issueCount" class="text-sm font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{issues ? issues.length : 0}</span>
+						{lastUpdated && (
+							<span class="ml-auto text-xs font-normal text-gray-400 dark:text-gray-500 flex items-center gap-1" title="When data was last scraped">
+								<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+								Updated {lastUpdated}
+							</span>
+						)}
 					</h1>
 					{issues && issues.length > 0 ? (
-						<div id="issueList" class="bg-white rounded-xl shadow-sm border border-green-500 divide-y divide-gray-100">
+						<div id="issueList" class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-green-500 divide-y divide-gray-100 dark:divide-gray-800">
 							{issues.map((issue: any) => <IssueCard issue={issue} />)}
 						</div>
 					) : (
 						<p class="text-gray-500">No issues found.</p>
 					)}
-					<div id="noIssuesMsg" class="hidden text-gray-500 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 text-center">No issues match your search.</div>
+					<div id="noIssuesMsg" class="hidden text-gray-500 dark:text-gray-400 mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800 text-center">No issues match your search.</div>
 					<div id="paginationContainer" class="mt-8"></div>
 				</section>
                 

@@ -17,19 +17,19 @@ const issueUrlParts = issue.url.split('/');
 const issueNumber = issueUrlParts[issueUrlParts.length - 1];
 const internalIssueUrl = `/issue/${issue.repo_id}/${issueNumber}`;
 ---
-<div data-type="issue" data-title={issue.title.toLowerCase()} data-repo={issue.repo_id.toLowerCase()} data-lang={issue.language} data-difficulty={diffCategory} class="p-4 hover:bg-gray-50 transition-colors">
+<div data-type="issue" data-title={issue.title.toLowerCase()} data-repo={issue.repo_id.toLowerCase()} data-lang={issue.language} data-difficulty={diffCategory} class="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
     <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
         <div class="min-w-0 flex-1">
-            <a href={internalIssueUrl} class="text-base font-medium text-indigo-600 hover:text-indigo-800 hover:underline inline-block break-words">
+            <a href={internalIssueUrl} class="text-base font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline inline-block break-words">
                 {issue.title}
             </a>
-            <p class="text-xs sm:text-sm text-gray-500 mt-1 truncate">
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">
                 {issue.repo_id} &middot; <span class="whitespace-nowrap">{new Date(issue.created_at).toLocaleDateString()}</span>
             </p>
         </div>
         <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
             {issue.language && (
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300">
                     {issue.language}
                 </span>
             )}
@@ -43,7 +43,7 @@ const internalIssueUrl = `/issue/${issue.repo_id}/${issueNumber}`;
     {labels.length > 0 && (
         <div class="flex flex-wrap gap-1.5 mt-2">
             {labels.map((label: any) => (
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                     {typeof label === 'string' ? label : label.name || JSON.stringify(label)}
                 </span>
             ))}

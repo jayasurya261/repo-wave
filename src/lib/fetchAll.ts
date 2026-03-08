@@ -21,8 +21,9 @@ export async function fetchAllRecords(table: string, selectQuery: string, orderB
         const { data, error } = await query;
 
         if (error) {
-            console.error(`Error fetching from ${table}:`, error);
-            throw error;
+            console.error(`[fetchAllRecords] Supabase error fetching "${table}":`, error.message ?? error);
+            // Return whatever we have so far rather than crashing the build
+            return allData.slice(0, maxLimit);
         }
 
         if (!data || data.length === 0) {

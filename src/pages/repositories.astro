@@ -1,29 +1,67 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { supabase } from '../lib/supabase';
 import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
 import RepoCard from '../components/RepoCard.astro';
-
 import { fetchAllRecords } from '../lib/fetchAll';
 
-// Fetch repos ordered by stars
-const repos = await fetchAllRecords('repos', '*', 'stars', false, 5000);
-const error = null;
+const PAGE_SIZE = 20;
 
-// Extract unique languages from repos for the filter panel
-const uniqueLanguages = repos 
-	? [...new Set(repos.map(r => r.language).filter(Boolean))].sort()
-	: [];
+// Fetch repos with graceful fallback if Supabase is unavailable
+let repos: any[] = [];
+let issuesByRepo: Map<string, any[]> = new Map();
+let fetchFailed = false;
+
+try {
+	repos = await fetchAllRecords('repos', '*', 'stars', false, PAGE_SIZE);
+	// Single query for all issues belonging to those repos — no N+1
+	const issuesRaw = await fetchAllRecords('issues', '*, repos(language)', 'created_at', false, 5000);
+	for (const issue of (issuesRaw ?? [])) {
+		const key = issue.repo_id;
+		if (!issuesByRepo.has(key)) issuesByRepo.set(key, []);
+		issuesByRepo.get(key)!.push(issue);
+	}
+} catch (err) {
+	console.error('[repositories] Failed to fetch data from Supabase:', err);
+	fetchFailed = true;
+}
+
+// Unique languages — a small separate query
+let uniqueLanguages: string[] = [];
+try {
+	const langRows = await fetchAllRecords('repos', 'language', 'language', true, 5000);
+	uniqueLanguages = [...new Set(langRows.map((r: any) => r.language).filter(Boolean))].sort() as string[];
+} catch { /* non-fatal */ }
+
+// Data freshness
+let lastUpdated: string | null = null;
+try {
+	const { supabase } = await import('../lib/supabase');
+	const { data } = await supabase.from('issues').select('created_at').order('created_at', { ascending: false }).limit(1).single();
+	if (data?.created_at) {
+		const diff = Date.now() - new Date(data.created_at).getTime();
+		const h = Math.floor(diff / 36e5), d = Math.floor(diff / 864e5);
+		lastUpdated = d >= 1 ? `${d}d ago` : h >= 1 ? `${h}h ago` : 'just now';
+	}
+} catch { /* non-fatal */ }
 ---
+
+
 
 <Layout title="Repositories | Open Source Finder" description="Explore the highest-rated open-source repositories by language, health score, and difficulty.">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-		{error && (
-			<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-8">
-				<p class="font-semibold">Error fetching data</p>
-				<p class="text-sm mt-1">{error.message}</p>
+		{fetchFailed && (
+			<div class="flex items-start gap-3 bg-amber-50 border border-amber-300 text-amber-800 px-5 py-4 rounded-xl mb-8 shadow-sm">
+				<svg class="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+					<line x1="12" y1="9" x2="12" y2="13"/>
+					<line x1="12" y1="17" x2="12.01" y2="17"/>
+				</svg>
+				<div>
+					<p class="font-semibold text-sm">Service temporarily unavailable</p>
+					<p class="text-sm mt-0.5 text-amber-700">We couldn&apos;t load the latest repositories right now. Please try refreshing the page in a moment.</p>
+				</div>
 			</div>
 		)}
 
@@ -39,18 +77,24 @@ const uniqueLanguages = repos
 
 				<!-- Repos Section -->
 				<section>
-					<h1 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+					<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
 						Repositories
-						<span id="repoCount" class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{repos ? repos.length : 0}</span>
+						<span id="repoCount" class="text-sm font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{repos ? repos.length : 0}</span>
+						{lastUpdated && (
+							<span class="ml-auto text-xs font-normal text-gray-400 dark:text-gray-500 flex items-center gap-1" title="When data was last scraped">
+								<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+								Updated {lastUpdated}
+							</span>
+						)}
 					</h1>
 					{repos && repos.length > 0 ? (
 						<div id="repoList" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-							{repos.map((repo: any) => <RepoCard repo={repo} />)}
+							{repos.map((repo: any) => <RepoCard repo={repo} repoIssues={issuesByRepo.get(repo.full_name) ?? []} />)}
 						</div>
 					) : (
 						<p class="text-gray-500">No repositories found.</p>
 					)}
-					<div id="noReposMsg" class="hidden text-gray-500 mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 text-center">No repositories match your filter.</div>
+					<div id="noReposMsg" class="hidden text-gray-500 dark:text-gray-400 mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800 text-center">No repositories match your filter.</div>
 					<div id="paginationContainer" class="mt-8"></div>
 				</section>
                 
