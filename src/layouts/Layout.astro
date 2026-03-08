@@ -7,14 +7,31 @@ import Analytics from '@vercel/analytics/astro';
 export interface Props {
 	title?: string;
 	description?: string;
+	jsonLd?: string;
 }
 
 const { 
 	title = "Open Source Finder | Discover Repos & Issues", 
-	description = "Find the best open-source repositories and issues to contribute to. Filter by language, difficulty, and jumpstart your developer journey."
+	description = "Find the best open-source repositories and issues to contribute to. Filter by language, difficulty, and jumpstart your developer journey.",
+	jsonLd
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://opensourcefinder.example.com');
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://opensourcefinder.com';
+const canonicalURL = new URL(Astro.url.pathname, siteUrl);
+
+// Default WebSite JSON-LD for every page
+const websiteJsonLd = JSON.stringify({
+	"@context": "https://schema.org",
+	"@type": "WebSite",
+	"name": "Open Source Finder",
+	"url": siteUrl,
+	"description": "Find the best open-source repositories and issues to contribute to. Filter by language, difficulty, and jumpstart your developer journey.",
+	"potentialAction": {
+		"@type": "SearchAction",
+		"target": `${siteUrl}/repositories?q={search_term_string}`,
+		"query-input": "required name=search_term_string"
+	}
+});
 ---
 <!doctype html>
 <html lang="en">
@@ -43,6 +60,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://opensour
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
+
+		<!-- JSON-LD Structured Data: WebSite (default on all pages) -->
+		<script type="application/ld+json" set:html={websiteJsonLd} />
+
+		<!-- JSON-LD Structured Data: Page-specific -->
+		{jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
 	</head>
 	<body class="bg-gray-50 flex flex-col min-h-screen">
 		<Navbar />

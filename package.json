@@ -9,6 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.0",
     "@supabase/supabase-js": "^2.97.0",
     "@tailwindcss/vite": "^4.2.0",
     "@vercel/analytics": "^1.6.1",

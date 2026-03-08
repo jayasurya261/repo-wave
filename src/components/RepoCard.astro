@@ -24,7 +24,7 @@ const { data: repoIssues } = await supabase
 <div data-type="repo" data-name={repo.name.toLowerCase()} data-lang={repo.language} data-difficulty={diffCategory} class="bg-white rounded-xl shadow-sm border border-green-500 hover:shadow-md transition-shadow flex flex-col overflow-hidden">
     <div class="p-5 flex-grow">
         <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-semibold text-gray-900 truncate">{repo.name}</h3>
+            <a href={`/repo/${repo.full_name}`} class="text-lg font-semibold text-gray-900 truncate hover:text-indigo-600 transition-colors">{repo.name}</a>
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                 {repo.language}
             </span>
@@ -66,9 +66,12 @@ const { data: repoIssues } = await supabase
             
             <div class="p-4 pt-0 space-y-3 max-h-60 overflow-y-auto custom-scrollbar bg-gray-50">
                 {repoIssues && repoIssues.length > 0 ? (
-                    repoIssues.map((issue: any) => (
+                    repoIssues.map((issue: any) => {
+                        const parts = issue.url.split('/');
+                        const issueNum = parts[parts.length - 1];
+                        return (
                         <div class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <a href={issue.url} target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline block truncate mb-1" title={issue.title}>
+                            <a href={`/issue/${repo.full_name}/${issueNum}`} class="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline block truncate mb-1" title={issue.title}>
                                 {issue.title}
                             </a>
                             <div class="flex items-center justify-between">
@@ -87,7 +90,8 @@ const { data: repoIssues } = await supabase
                                 )}
                             </div>
                         </div>
-                    ))
+                        );
+                    })
                 ) : (
                     <p class="text-sm text-gray-500 italic pb-2">No active issues found for this repository.</p>
                 )}
