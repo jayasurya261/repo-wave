@@ -7,7 +7,7 @@ import vercel from "@astrojs/vercel";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://opensourcefinder.com",
+  site: "https://www.repowave.space",
   integrations: [sitemap()],
 
   vite: {
