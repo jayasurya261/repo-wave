@@ -1,9 +1,11 @@
 ---
+export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
 import RepoCard from '../components/RepoCard.astro';
 import { fetchAllRecords } from '../lib/fetchAll';
+import { supabase } from '../lib/supabase';
 
 const PAGE_SIZE = 20;
 
@@ -14,12 +16,20 @@ let fetchFailed = false;
 
 try {
 	repos = await fetchAllRecords('repos', '*', 'stars', false, PAGE_SIZE);
-	// Single query for all issues belonging to those repos — no N+1
-	const issuesRaw = await fetchAllRecords('issues', '*, repos(language)', 'created_at', false, 5000);
-	for (const issue of (issuesRaw ?? [])) {
-		const key = issue.repo_id;
-		if (!issuesByRepo.has(key)) issuesByRepo.set(key, []);
-		issuesByRepo.get(key)!.push(issue);
+	// Only fetch issues for the repos we're actually showing — no more fetching 5000 rows
+	if (repos.length > 0) {
+		const repoIds = repos.map((r: any) => r.full_name);
+		const { data: issuesRaw } = await supabase
+			.from('issues')
+			.select('*')
+			.in('repo_id', repoIds)
+			.order('created_at', { ascending: false })
+			.limit(200);
+		for (const issue of (issuesRaw ?? [])) {
+			const key = issue.repo_id;
+			if (!issuesByRepo.has(key)) issuesByRepo.set(key, []);
+			issuesByRepo.get(key)!.push(issue);
+		}
 	}
 } catch (err) {
 	console.error('[repositories] Failed to fetch data from Supabase:', err);

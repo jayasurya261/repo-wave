@@ -1,0 +1,81 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RepoCard from '../components/RepoCard.astro';
+import { supabase } from '../lib/supabase';
+import { auth } from '../lib/auth';
+
+export const prerender = false;
+
+let session = null;
+try {
+    session = await auth.api.getSession({ headers: Astro.request.headers });
+} catch (e) {}
+
+if (!session?.user) return Astro.redirect('/login');
+
+const userId = session.user.id;
+let bookmarkedRepos: any[] = [];
+
+try {
+    const { data: bRepos } = await supabase
+        .from('bookmarks')
+        .select('repo_id')
+        .eq('user_id', userId);
+
+    if (bRepos && bRepos.length > 0) {
+        const repoIds = bRepos.map(b => b.repo_id);
+        const { data: reposData } = await supabase
+            .from('repos')
+            .select('*')
+            .in('full_name', repoIds);
+        if (reposData) bookmarkedRepos = reposData;
+    }
+} catch (error) {
+    console.error('Error fetching saved repos:', error);
+}
+---
+
+<Layout title="Saved Repositories | Open Source Finder" description="Your bookmarked repositories.">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-[70vh]">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Saved Repositories</h1>
+                </div>
+                <p class="text-gray-500 dark:text-gray-400 ml-11">
+                    {bookmarkedRepos.length} {bookmarkedRepos.length === 1 ? 'repository' : 'repositories'} saved
+                </p>
+            </div>
+            <a href="/saved-issues" class="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                View Saved Issues →
+            </a>
+        </div>
+
+        {bookmarkedRepos.length > 0 ? (
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {bookmarkedRepos.map(repo => (
+                    <RepoCard repo={repo} />
+                ))}
+            </div>
+        ) : (
+            <div class="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="mx-auto w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">No saved repositories yet</h3>
+                <p class="text-gray-500 dark:text-gray-400 mb-6">Click the bookmark icon on any repository card to save it here.</p>
+                <a href="/repositories" class="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                    Browse Repositories
+                </a>
+            </div>
+        )}
+    </div>
+</Layout>

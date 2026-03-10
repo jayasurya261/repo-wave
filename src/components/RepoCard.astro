@@ -16,8 +16,22 @@ if (repo.health_score != null) {
 <div data-type="repo" data-name={repo.name.toLowerCase()} data-lang={repo.language} data-difficulty={diffCategory} class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-green-500 hover:shadow-md transition-shadow flex flex-col overflow-hidden">
     <div class="p-5 flex-grow">
         <div class="flex items-center justify-between mb-3">
-            <a href={`/repo/${repo.full_name}`} class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{repo.name}</a>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300">
+            <div class="flex items-center gap-2 truncate">
+                <button type="button" class="bookmark-btn flex-shrink-0 text-gray-300 hover:text-indigo-500 dark:text-gray-600 dark:hover:text-amber-400 focus:outline-none transition-colors" data-repo-id={repo.full_name} title="Bookmark Repository">
+                    <svg class="w-5 h-5 bookmark-icon-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    <svg class="w-5 h-5 bookmark-icon-solid hidden text-indigo-500 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                </button>
+                <button type="button" class="repo-favourite-btn flex-shrink-0 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 focus:outline-none transition-colors" data-repo-id={repo.full_name} title="Add to Favourites">
+                    <svg class="w-5 h-5 favourite-icon-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    <svg class="w-5 h-5 favourite-icon-solid hidden text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                </button>
+                <a href={`/repo/${repo.full_name}`} class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{repo.name}</a>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 ml-2">
                 {repo.language}
             </span>
         </div>
@@ -97,3 +111,89 @@ if (repo.health_score != null) {
         display: none;
     }
 </style>
+
+<script>
+    import { getUserState, resetUserState } from '../lib/user-store';
+
+    function toggleIcon(outline: Element, solid: Element, active: boolean) {
+        outline.classList.toggle('hidden', active);
+        solid.classList.toggle('hidden', !active);
+    }
+
+    function revertIcon(outline: Element, solid: Element, wasActive: boolean) {
+        toggleIcon(outline, solid, wasActive);
+    }
+
+    async function postApi(url: string, body: object) {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        if (res.status === 401) { window.location.href = '/login'; return null; }
+        if (!res.ok) throw new Error('API error');
+        return res.json();
+    }
+
+    async function initRepoCards() {
+        const store = await getUserState();
+        if (!store.loggedIn) return;
+
+        // ── Bookmark buttons ──────────────────────────────────────
+        document.querySelectorAll('.bookmark-btn').forEach(btn => {
+            const repoId = btn.getAttribute('data-repo-id');
+            if (!repoId) return;
+            const outline = btn.querySelector('.bookmark-icon-outline')!;
+            const solid   = btn.querySelector('.bookmark-icon-solid')!;
+            if (!outline || !solid) return;
+
+            toggleIcon(outline, solid, store.repoBookmarks.has(repoId));
+
+            if (!btn.hasAttribute('data-bk-listener')) {
+                btn.setAttribute('data-bk-listener', 'true');
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    const was = store.repoBookmarks.has(repoId);
+                    toggleIcon(outline, solid, !was);
+                    try {
+                        const data = await postApi('/api/bookmarks', { repo_id: repoId });
+                        if (data) {
+                            data.bookmarked ? store.repoBookmarks.add(repoId) : store.repoBookmarks.delete(repoId);
+                            toggleIcon(outline, solid, store.repoBookmarks.has(repoId));
+                        }
+                    } catch { revertIcon(outline, solid, !was); }
+                });
+            }
+        });
+
+        // ── Favourite buttons ─────────────────────────────────────
+        document.querySelectorAll('.repo-favourite-btn').forEach(btn => {
+            const repoId = btn.getAttribute('data-repo-id');
+            if (!repoId) return;
+            const outline = btn.querySelector('.favourite-icon-outline')!;
+            const solid   = btn.querySelector('.favourite-icon-solid')!;
+            if (!outline || !solid) return;
+
+            toggleIcon(outline, solid, store.repoFavourites.has(repoId));
+
+            if (!btn.hasAttribute('data-fav-listener')) {
+                btn.setAttribute('data-fav-listener', 'true');
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    const was = store.repoFavourites.has(repoId);
+                    toggleIcon(outline, solid, !was);
+                    try {
+                        const data = await postApi('/api/favourites', { repo_id: repoId });
+                        if (data) {
+                            data.favourited ? store.repoFavourites.add(repoId) : store.repoFavourites.delete(repoId);
+                            toggleIcon(outline, solid, store.repoFavourites.has(repoId));
+                        }
+                    } catch { revertIcon(outline, solid, !was); }
+                });
+            }
+        });
+    }
+
+    initRepoCards();
+    document.addEventListener('astro:page-load', () => { resetUserState(); initRepoCards(); });
+</script>

@@ -1,0 +1,128 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RepoCard from '../components/RepoCard.astro';
+import IssueCard from '../components/IssueCard.astro';
+import { supabase } from '../lib/supabase';
+import { auth } from '../lib/auth';
+
+export const prerender = false;
+
+let session = null;
+try {
+    session = await auth.api.getSession({ headers: Astro.request.headers });
+} catch (e) {}
+
+if (!session?.user) return Astro.redirect('/login');
+
+const userId = session.user.id;
+
+// Bookmarked Repos
+let bookmarkedRepos: any[] = [];
+try {
+    const { data: bRepos } = await supabase.from('bookmarks').select('repo_id').eq('user_id', userId);
+    if (bRepos?.length) {
+        const { data } = await supabase.from('repos').select('*').in('full_name', bRepos.map(b => b.repo_id));
+        if (data) bookmarkedRepos = data;
+    }
+} catch (e) { console.error(e); }
+
+// Bookmarked Issues
+let bookmarkedIssues: any[] = [];
+try {
+    const { data: bIssues } = await supabase.from('issue_bookmarks').select('issue_id').eq('user_id', userId);
+    if (bIssues?.length) {
+        const results = await Promise.all(bIssues.map(async b => {
+            const parts = b.issue_id.split('/');
+            const issueNum = parts.pop();
+            const repoId = parts.join('/');
+            const { data } = await supabase.from('issues').select('*').eq('repo_id', repoId).like('url', `%/${issueNum}`).limit(1).single();
+            return data;
+        }));
+        bookmarkedIssues = results.filter(Boolean);
+    }
+} catch (e) { console.error(e); }
+---
+
+<Layout title="Bookmarks | Open Source Finder" description="Your bookmarked repositories and issues.">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-[70vh]">
+        <div class="mb-8 flex items-center gap-3">
+            <div class="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg">
+                <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Bookmarks</h1>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">{bookmarkedRepos.length} repos · {bookmarkedIssues.length} issues saved</p>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+            <nav class="-mb-px flex space-x-8">
+                <button class="tab-btn active border-indigo-500 text-indigo-600 dark:text-indigo-400 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors" data-target="reposPane">
+                    Repositories <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300">{bookmarkedRepos.length}</span>
+                </button>
+                <button class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:hover:text-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors" data-target="issuesPane">
+                    Issues <span class="ml-1.5 px-2 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">{bookmarkedIssues.length}</span>
+                </button>
+            </nav>
+        </div>
+
+        <div id="reposPane" class="tab-pane">
+            {bookmarkedRepos.length > 0 ? (
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {bookmarkedRepos.map(repo => <RepoCard repo={repo} />)}
+                </div>
+            ) : (
+                <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <svg class="mx-auto h-10 w-10 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                    </svg>
+                    <h3 class="font-medium text-gray-900 dark:text-white mb-1">No bookmarked repositories</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Click the 🔖 ribbon icon on any repo to save it here.</p>
+                    <a href="/repositories" class="inline-flex px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors">Browse Repositories</a>
+                </div>
+            )}
+        </div>
+
+        <div id="issuesPane" class="tab-pane hidden">
+            {bookmarkedIssues.length > 0 ? (
+                <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden divide-y divide-gray-100 dark:divide-gray-800">
+                    {bookmarkedIssues.map(issue => <IssueCard issue={issue} />)}
+                </div>
+            ) : (
+                <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <svg class="mx-auto h-10 w-10 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                    </svg>
+                    <h3 class="font-medium text-gray-900 dark:text-white mb-1">No bookmarked issues</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Click the 🔖 ribbon icon on any issue to save it here.</p>
+                    <a href="/issues" class="inline-flex px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors">Browse Issues</a>
+                </div>
+            )}
+        </div>
+    </div>
+</Layout>
+
+<script>
+    function initTabs() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => {
+                    b.classList.remove('border-indigo-500', 'text-indigo-600', 'dark:text-indigo-400', 'active');
+                    b.classList.add('border-transparent', 'text-gray-500');
+                });
+                tabPanes.forEach(p => p.classList.add('hidden'));
+                btn.classList.add('border-indigo-500', 'text-indigo-600', 'dark:text-indigo-400', 'active');
+                btn.classList.remove('border-transparent', 'text-gray-500');
+                const target = btn.getAttribute('data-target');
+                if (target) document.getElementById(target)?.classList.remove('hidden');
+            });
+        });
+    }
+    initTabs();
+    document.addEventListener('astro:page-load', initTabs);
+</script>

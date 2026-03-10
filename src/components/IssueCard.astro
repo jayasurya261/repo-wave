@@ -20,9 +20,25 @@ const internalIssueUrl = `/issue/${issue.repo_id}/${issueNumber}`;
 <div data-type="issue" data-title={issue.title.toLowerCase()} data-repo={issue.repo_id.toLowerCase()} data-lang={issue.language} data-difficulty={diffCategory} class="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
     <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
         <div class="min-w-0 flex-1">
-            <a href={internalIssueUrl} class="text-base font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline inline-block break-words">
-                {issue.title}
-            </a>
+            <div class="flex items-center gap-1.5 min-w-0">
+                <!-- Bookmark ribbon (save) -->
+                <button type="button" class="issue-bookmark-btn flex-shrink-0 text-gray-400 hover:text-indigo-500 dark:text-gray-500 dark:hover:text-amber-400 focus:outline-none transition-colors" data-issue-id={`${issue.repo_id}/${issueNumber}`} title="Bookmark Issue">
+                    <svg class="w-4 h-4 bookmark-icon-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    <svg class="w-4 h-4 bookmark-icon-solid hidden text-indigo-500 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                </button>
+                <!-- Heart (favourite) -->
+                <button type="button" class="issue-favourite-btn flex-shrink-0 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 focus:outline-none transition-colors" data-issue-id={`${issue.repo_id}/${issueNumber}`} title="Add to Favourites">
+                    <svg class="w-4 h-4 favourite-icon-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    <svg class="w-4 h-4 favourite-icon-solid hidden text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                </button>
+                <a href={internalIssueUrl} class="text-base font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline truncate">
+                    {issue.title}
+                </a>
+            </div>
             <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">
                 {issue.repo_id} &middot; <span class="whitespace-nowrap">{new Date(issue.created_at).toLocaleDateString()}</span>
             </p>
@@ -50,3 +66,85 @@ const internalIssueUrl = `/issue/${issue.repo_id}/${issueNumber}`;
         </div>
     )}
 </div>
+
+<script>
+    import { getUserState, resetUserState } from '../lib/user-store';
+
+    function toggleIcon(outline: Element, solid: Element, active: boolean) {
+        outline.classList.toggle('hidden', active);
+        solid.classList.toggle('hidden', !active);
+    }
+
+    async function postApi(url: string, body: object) {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        if (res.status === 401) { window.location.href = '/login'; return null; }
+        if (!res.ok) throw new Error('API error');
+        return res.json();
+    }
+
+    async function initIssueCards() {
+        const store = await getUserState();
+        if (!store.loggedIn) return;
+
+        // ── Bookmark buttons ──────────────────────────────────────
+        document.querySelectorAll('.issue-bookmark-btn').forEach(btn => {
+            const issueId = btn.getAttribute('data-issue-id');
+            if (!issueId) return;
+            const outline = btn.querySelector('.bookmark-icon-outline')!;
+            const solid   = btn.querySelector('.bookmark-icon-solid')!;
+            if (!outline || !solid) return;
+
+            toggleIcon(outline, solid, store.issueBookmarks.has(issueId));
+
+            if (!btn.hasAttribute('data-bk-listener')) {
+                btn.setAttribute('data-bk-listener', 'true');
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    const was = store.issueBookmarks.has(issueId);
+                    toggleIcon(outline, solid, !was);
+                    try {
+                        const data = await postApi('/api/bookmarks', { issue_id: issueId });
+                        if (data) {
+                            data.bookmarked ? store.issueBookmarks.add(issueId) : store.issueBookmarks.delete(issueId);
+                            toggleIcon(outline, solid, store.issueBookmarks.has(issueId));
+                        }
+                    } catch { toggleIcon(outline, solid, was); }
+                });
+            }
+        });
+
+        // ── Favourite buttons ─────────────────────────────────────
+        document.querySelectorAll('.issue-favourite-btn').forEach(btn => {
+            const issueId = btn.getAttribute('data-issue-id');
+            if (!issueId) return;
+            const outline = btn.querySelector('.favourite-icon-outline')!;
+            const solid   = btn.querySelector('.favourite-icon-solid')!;
+            if (!outline || !solid) return;
+
+            toggleIcon(outline, solid, store.issueFavourites.has(issueId));
+
+            if (!btn.hasAttribute('data-fav-listener')) {
+                btn.setAttribute('data-fav-listener', 'true');
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    const was = store.issueFavourites.has(issueId);
+                    toggleIcon(outline, solid, !was);
+                    try {
+                        const data = await postApi('/api/favourites', { issue_id: issueId });
+                        if (data) {
+                            data.favourited ? store.issueFavourites.add(issueId) : store.issueFavourites.delete(issueId);
+                            toggleIcon(outline, solid, store.issueFavourites.has(issueId));
+                        }
+                    } catch { toggleIcon(outline, solid, was); }
+                });
+            }
+        });
+    }
+
+    initIssueCards();
+    document.addEventListener('astro:page-load', () => { resetUserState(); initIssueCards(); });
+</script>
