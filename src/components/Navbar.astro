@@ -94,7 +94,7 @@ const currentPath = pathname === '/' ? '/' : pathname;
                     </div>
                     <div id="auth-desktop" class="hidden items-center gap-2">
                         <!-- Avatar with initials fallback -->
-                        <a href="/profile" class="relative group block" title="View Profile">
+                        <a id="profile-link-desktop" href="/profile" class="relative group block" title="View Profile">
                             <img id="user-avatar-desktop" class="h-8 w-8 rounded-full hidden border-2 border-green-400 cursor-pointer object-cover" src="" alt="Avatar" />
                             <div id="user-initials-desktop" class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center cursor-pointer border-2 border-green-400">
                                 <span id="user-initial-text" class="text-white text-xs font-bold"></span>
@@ -156,7 +156,7 @@ const currentPath = pathname === '/' ? '/' : pathname;
                 <a href="/signup" class="block px-3 py-2 rounded-md text-base font-medium bg-green-500 text-white hover:bg-green-600 text-center mx-2 mt-2">Sign up</a>
             </div>
             <div id="auth-mobile" class="hidden px-4">
-                <a href="/profile" class="flex items-center group block">
+                <a id="profile-link-mobile" href="/profile" class="flex items-center group block">
                     <img id="user-avatar-mobile" class="h-10 w-10 rounded-full hidden border border-gray-200 dark:border-gray-700 object-cover" src="" alt="Avatar" />
                     <div id="user-initials-mobile" class="h-10 w-10 rounded-full bg-green-500 hidden items-center justify-center border border-gray-200 dark:border-gray-700">
                         <span id="user-initial-text-mobile" class="text-white text-sm font-bold"></span>
@@ -248,6 +248,15 @@ const currentPath = pathname === '/' ? '/' : pathname;
                 // Compute shared values at the top
                 const displayName = sessionData.user.name || sessionData.user.email.split('@')[0];
                 const initial = displayName.charAt(0).toUpperCase();
+                // @ts-ignore
+                const username = sessionData.user.username; 
+                const profileUrl = username ? `/${username}` : '/profile';
+
+                const profileLinkDesktop = document.getElementById('profile-link-desktop');
+                if (profileLinkDesktop) profileLinkDesktop.setAttribute('href', profileUrl);
+
+                const profileLinkMobile = document.getElementById('profile-link-mobile');
+                if (profileLinkMobile) profileLinkMobile.setAttribute('href', profileUrl);
 
                 // --- Desktop ---
                 if (unauthDesktop) {

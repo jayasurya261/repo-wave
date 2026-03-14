@@ -137,7 +137,19 @@ if (repo.health_score != null) {
 
     async function initRepoCards() {
         const store = await getUserState();
-        if (!store.loggedIn) return;
+        if (!store.loggedIn) {
+            // Attach handlers for unauthenticated users
+            document.querySelectorAll('.bookmark-btn, .repo-favourite-btn').forEach(btn => {
+                if (!btn.hasAttribute('data-unauth-listener')) {
+                    btn.setAttribute('data-unauth-listener', 'true');
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault(); e.stopPropagation();
+                        if (typeof window.showAuthToast === 'function') window.showAuthToast();
+                    });
+                }
+            });
+            return;
+        }
 
         // ── Bookmark buttons ──────────────────────────────────────
         document.querySelectorAll('.bookmark-btn').forEach(btn => {

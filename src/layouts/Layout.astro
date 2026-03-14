@@ -84,6 +84,61 @@ const websiteJsonLd = JSON.stringify({
 		</main>
 		<Footer />
 		<Analytics />
+
+		<!-- Auth Toast -->
+		<div id="auth-toast" class="fixed bottom-6 left-6 z-[100] transform -translate-x-[calc(100%+2rem)] transition-transform duration-500 ease-out pointer-events-none">
+			<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl px-5 py-4 flex items-center gap-3 min-w-[320px] pointer-events-auto">
+				<div class="flex-shrink-0 w-10 h-10 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center">
+					<svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+					</svg>
+				</div>
+				<div class="flex-1">
+					<p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Sign in required</p>
+					<p class="text-xs text-gray-500 dark:text-gray-400">Authenticate to use favourites & bookmarks</p>
+				</div>
+				<div class="flex-shrink-0">
+					<span id="auth-toast-countdown" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold">5</span>
+				</div>
+			</div>
+			<!-- Progress bar -->
+			<div class="mt-1 mx-2 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+				<div id="auth-toast-progress" class="h-full bg-green-500 rounded-full transition-all duration-1000 ease-linear" style="width: 100%"></div>
+			</div>
+		</div>
+
+		<script is:inline>
+			window._authToastTimer = null;
+			window.showAuthToast = function() {
+				// Prevent multiple toasts
+				if (window._authToastTimer) return;
+
+				var toast = document.getElementById('auth-toast');
+				var countdown = document.getElementById('auth-toast-countdown');
+				var progress = document.getElementById('auth-toast-progress');
+				if (!toast || !countdown || !progress) return;
+
+				// Slide in
+				toast.classList.remove('-translate-x-[calc(100%+2rem)]');
+				toast.classList.add('translate-x-0');
+
+				var seconds = 5;
+				countdown.textContent = seconds;
+				progress.style.width = '100%';
+
+				window._authToastTimer = setInterval(function() {
+					seconds--;
+					countdown.textContent = seconds;
+					progress.style.width = (seconds / 5 * 100) + '%';
+
+					if (seconds <= 0) {
+						clearInterval(window._authToastTimer);
+						window._authToastTimer = null;
+						window.location.href = '/login';
+					}
+				}, 1000);
+			};
+		</script>
 	</body>
 </html>
 

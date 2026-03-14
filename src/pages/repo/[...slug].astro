@@ -5,7 +5,8 @@ import { supabase } from '../../lib/supabase';
 import { fetchAllRecords } from '../../lib/fetchAll';
 
 export async function getStaticPaths() {
-    const repos = await fetchAllRecords('repos', '*', 'stars', false, 5000);
+    const limit = import.meta.env.DEV ? 100 : 5000;
+    const repos = await fetchAllRecords('repos', '*', 'stars', false, limit);
     return repos.map((repo: any) => ({
         params: { slug: repo.full_name },
         props: { repo }

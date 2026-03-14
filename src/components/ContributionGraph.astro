@@ -1,0 +1,265 @@
+---
+export interface Props {
+    prContributions?: any[];
+}
+
+const { prContributions = [] } = Astro.props;
+
+// Calculate real contributions per day
+const contributionMap = new Map<string, number>();
+let totalRealContributions = 0;
+
+prContributions.forEach(pr => {
+    // Just count 1 PR = 1 contribution for the graph, or use the score. Let's use 1 contribution for simple density.
+    const dateStr = new Date(pr.pr_merged_at).toISOString().split('T')[0];
+    contributionMap.set(dateStr, (contributionMap.get(dateStr) || 0) + 1);
+    totalRealContributions++;
+});
+
+// Generate exactly 365 days of dummy data
+// GitHub's grid is 53 columns (weeks) by 7 rows (days).
+const today = new Date();
+const days = 365;
+
+// We want the last day to be today.
+// For a perfect GitHub layout (Sunday to Saturday), we should calculate offsets,
+// but for a dummy component, we'll just generate 365 boxes and flow them column by column
+// or use a flex container that looks like a grid. Real GitHub uses a column-oriented flex/grid.
+
+// 0: no contributions (ebedf0 / 161b22)
+// 1: low (9be9a8 / 0e4429)
+// 2: medium (40c463 / 006d32)
+// 3: high (30a14e / 26a641)
+// 4: highest (216e39 / 39d353)
+
+const levels = [0, 1, 2, 3, 4];
+// Probability distribution to look natural (mostly 0s and 1s)
+const weights = [0.5, 0.2, 0.15, 0.1, 0.05];
+
+const getColorClass = (level: number) => {
+    switch(level) {
+        case 0: return 'bg-[#ebedf0] dark:bg-[#161b22]'; // Empty
+        case 1: return 'bg-[#9be9a8] dark:bg-[#0e4429]'; // L1
+        case 2: return 'bg-[#40c463] dark:bg-[#006d32]'; // L2
+        case 3: return 'bg-[#30a14e] dark:bg-[#26a641]'; // L3
+        case 4: return 'bg-[#216e39] dark:bg-[#39d353]'; // L4
+        default: return 'bg-[#ebedf0] dark:bg-[#161b22]';
+    }
+};
+
+const getRandomLevel = () => {
+    return 0;
+};
+
+// Generate data: 53 weeks * 7 days = 371 blocks to fill the grid nicely
+const totalCells = 53 * 7;
+
+const getContributionCount = (level: number) => {
+    return 0;
+};
+
+const formatDate = (date: Date) => {
+    const month = date.toLocaleString('default', { month: 'long' });
+    const day = date.getDate();
+    let suffix = 'th';
+    if (day % 10 === 1 && day !== 11) suffix = 'st';
+    else if (day % 10 === 2 && day !== 12) suffix = 'nd';
+    else if (day % 10 === 3 && day !== 13) suffix = 'rd';
+    return `${month} ${day}${suffix}.`;
+};
+
+const contributionData = Array.from({ length: totalCells }, (_, i) => {
+    // Calculate date: totalCells - 1 represents today
+    const cellDate = new Date();
+    cellDate.setDate(cellDate.getDate() - (totalCells - 1 - i));
+    const dateStr = cellDate.toISOString().split('T')[0];
+    
+    let count = 0;
+    let level = 0;
+
+    // Check real data first
+    if (contributionMap.has(dateStr)) {
+        count = contributionMap.get(dateStr)!;
+        if (count >= 4) level = 4;
+        else if (count === 3) level = 3;
+        else if (count === 2) level = 2;
+        else if (count === 1) level = 1;
+    } else {
+        level = getRandomLevel();
+        count = getContributionCount(level);
+    }
+    
+    const tooltipText = count === 0 
+        ? `No contributions on ${formatDate(cellDate)}` 
+        : `${count} contribution${count > 1 ? 's' : ''} on ${formatDate(cellDate)}`;
+
+    return {
+        id: i,
+        level,
+        count,
+        tooltipText
+    };
+});
+
+const months = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+const displayTotal = prContributions.length > 0 ? totalRealContributions : 869;
+---
+
+<div class="flex flex-col md:flex-row gap-6 mb-8 w-full max-w-[1000px] mx-auto text-[12px]">
+    
+    <!-- Main Graph Area -->
+    <div class="flex-grow min-w-0">
+        <!-- Header -->
+        <div class="flex flex-wrap justify-between items-end mb-2 text-gray-800 dark:text-gray-200">
+            <h2 class="text-base text-gray-900 dark:text-gray-100 m-0">
+                {displayTotal} contributions in the last year
+            </h2>
+        </div>
+
+        <!-- Graph Box -->
+        <div class="border border-gray-200 dark:border-[#30363d] rounded-md p-4 text-[#57606a] dark:text-[#7d8590] bg-white dark:bg-[#0d1117]">
+            
+            <div class="flex">
+                <!-- Days sidebar -->
+                <div class="flex flex-col gap-[2px] pr-2 pt-[18px] text-[10px] leading-[10px] min-w-[30px]">
+                    <span class="h-[10px]"></span>
+                    <span class="h-[10px] flex items-center">Mon</span>
+                    <span class="h-[10px]"></span>
+                    <span class="h-[10px] flex items-center">Wed</span>
+                    <span class="h-[10px]"></span>
+                    <span class="h-[10px] flex items-center">Fri</span>
+                    <span class="h-[10px]"></span>
+                </div>
+
+                <div class="flex flex-col flex-grow min-w-0 overflow-x-auto overflow-y-hidden pb-1 no-scrollbar">
+                    <!-- Months header -->
+                    <div class="flex text-[10px] leading-[10px] mb-2 w-max">
+                        {months.map((month, i) => (
+                            <div class="w-[50px]">{month}</div>
+                        ))}
+                    </div>
+
+                    <!-- The Grid (Column major order in CSS using writing-mode or flex columns) -->
+                    <!-- We use grid with grid-flow-col -->
+                    <div class="grid grid-rows-7 grid-flow-col gap-[3px] w-max">
+                        {contributionData.map((cell) => (
+                            <div 
+                                class={`contribution-cell w-[10px] h-[10px] rounded-[2px] ${getColorClass(cell.level)} outline-1 outline-offset-[-1px] outline-black/10 dark:outline-white/5 cursor-pointer`}
+                                data-tooltip={cell.tooltipText}
+                            ></div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-between items-center mt-4 text-[10px] sm:text-[11px] leading-[11px]">
+                <a href="#" class="hover:text-blue-600 dark:hover:text-[#2f81f7] transition-colors">Learn how we count contributions</a>
+                
+                <div class="flex items-center gap-[4px] text-[#57606a] dark:text-[#7d8590]">
+                    <span class="mr-1">Less</span>
+                    <div class="w-[10px] h-[10px] rounded-sm bg-[#ebedf0] dark:bg-[#161b22] outline-1 outline-offset-[-1px] outline-black/10 dark:outline-white/5"></div>
+                    <div class="w-[10px] h-[10px] rounded-sm bg-[#9be9a8] dark:bg-[#0e4429] outline-1 outline-offset-[-1px] outline-black/10 dark:outline-white/5"></div>
+                    <div class="w-[10px] h-[10px] rounded-sm bg-[#40c463] dark:bg-[#006d32] outline-1 outline-offset-[-1px] outline-black/10 dark:outline-white/5"></div>
+                    <div class="w-[10px] h-[10px] rounded-sm bg-[#30a14e] dark:bg-[#26a641] outline-1 outline-offset-[-1px] outline-black/10 dark:outline-white/5"></div>
+                    <div class="w-[10px] h-[10px] rounded-sm bg-[#216e39] dark:bg-[#39d353] outline-1 outline-offset-[-1px] outline-black/10 dark:outline-white/5"></div>
+                    <span class="ml-1">More</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Years Sidebar -->
+    <div class="w-full md:w-[130px] flex md:flex-col gap-2 pt-6">
+        <a href="#" class="flex-1 md:flex-none px-4 py-[6px] text-[12px] bg-blue-600 text-white rounded-md font-medium text-center md:text-left transition-colors">2026</a>
+        <a href="#" class="flex-1 md:flex-none px-4 py-[6px] text-[12px] text-[#57606a] dark:text-[#7d8590] hover:bg-gray-100 dark:hover:bg-[#21262d] rounded-md transition-colors text-center md:text-left">2025</a>
+        <a href="#" class="flex-1 md:flex-none px-4 py-[6px] text-[12px] text-[#57606a] dark:text-[#7d8590] hover:bg-gray-100 dark:hover:bg-[#21262d] rounded-md transition-colors text-center md:text-left">2024</a>
+        <a href="#" class="flex-1 md:flex-none px-4 py-[6px] text-[12px] text-[#57606a] dark:text-[#7d8590] hover:bg-gray-100 dark:hover:bg-[#21262d] rounded-md transition-colors text-center md:text-left">2023</a>
+    </div>
+
+</div>
+
+<style>
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+</style>
+
+<!-- Tooltip Element -->
+<div id="graph-tooltip" class="pointer-events-none fixed z-50 hidden rounded-[6px] bg-gray-900 dark:bg-[#e1e4e8] text-gray-100 dark:text-[#24292e] px-3 py-2 text-[12px] font-medium leading-[1.2] shadow-xl border border-gray-700 dark:border-gray-300 whitespace-nowrap opacity-0 transition-opacity duration-200">
+</div>
+
+<script>
+    const tooltip = document.getElementById('graph-tooltip');
+    const cells = document.querySelectorAll('.contribution-cell');
+    let hideTimeout;
+
+    if (tooltip && cells.length > 0) {
+        cells.forEach(cell => {
+            cell.addEventListener('mouseenter', (e) => {
+                clearTimeout(hideTimeout);
+                const text = cell.getAttribute('data-tooltip');
+                if (text) {
+                    tooltip.textContent = text;
+                    tooltip.style.display = 'block';
+                    
+                    // Position calculations
+                    const rect = cell.getBoundingClientRect();
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    
+                    // Position above the cell, centered horizontally
+                    let top = rect.top - tooltipRect.height - 8;
+                    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+                    
+                    // Boundary checks
+                    if (top < 0) top = rect.bottom + 8; // Display below if not enough space
+                    if (left < 0) left = 4; // screen left edge padding
+                    if (left + tooltipRect.width > window.innerWidth) {
+                        left = window.innerWidth - tooltipRect.width - 4; // screen right padding
+                    }
+                    
+                    tooltip.style.top = `${top}px`;
+                    tooltip.style.left = `${left}px`;
+                    
+                    // Small delay to allow display block to take effect before opacity transition
+                    setTimeout(() => {
+                        tooltip.style.opacity = '1';
+                    }, 10);
+                }
+            });
+
+            cell.addEventListener('mouseleave', () => {
+                tooltip.style.opacity = '0';
+                hideTimeout = setTimeout(() => {
+                    if (tooltip.style.opacity === '0') {
+                        tooltip.style.display = 'none';
+                    }
+                }, 200); // Matches TW duration-200
+            });
+        });
+        
+        // Hide tooltip if scrolling the container or clicking outside
+        const graphContainer = document.querySelector('.overflow-x-auto');
+        if (graphContainer) {
+            graphContainer.addEventListener('scroll', () => {
+                tooltip.style.opacity = '0';
+                tooltip.style.display = 'none';
+            }, { passive: true });
+        }
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('contribution-cell')) {
+                tooltip.style.opacity = '0';
+                tooltip.style.display = 'none';
+            }
+        });
+    }
+</script>

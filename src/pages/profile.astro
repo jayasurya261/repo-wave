@@ -1,152 +1,39 @@
+
 ---
-import Layout from '../layouts/Layout.astro';
 import { auth } from '../lib/auth';
-import { supabase } from '../lib/supabase';
-import RepoCard from '../components/RepoCard.astro';
+import { generateUniqueUsername } from '../lib/username-utils';
+import { pool } from '../lib/db';
 
-export const prerender = false; // Need page to evaluate request headers
+export const prerender = false;
 
-// 1. Authenticate user
-const sessionResponse = await auth.api.getSession({
+const session = await auth.api.getSession({
     headers: Astro.request.headers
 });
 
-// Redirect to login if user isn't logged in
-if (!sessionResponse || !sessionResponse.user) {
+if (!session || !session.user) {
     return Astro.redirect('/login');
 }
 
-const user = sessionResponse.user;
+let username = session.user.username;
 
-// 2. Fetch User's Bookmarks
-let bookmarkedRepos: any[] = [];
-let errorMsg = null;
-
-try {
-    const { data: bookmarksData, error: bookmarksError } = await supabase
-        .from('bookmarks')
-        .select('repo_id')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false }); // Show newest first
-        
-    if (bookmarksError) throw bookmarksError;
-    
-    if (bookmarksData && bookmarksData.length > 0) {
-        const repoIds = bookmarksData.map(b => b.repo_id);
-        
-        // Fetch repository details
-        const { data: reposData, error: reposError } = await supabase
-            .from('repos')
-            .select('*')
-            .in('full_name', repoIds);
-            
-        if (reposError) throw reposError;
-        
-        if (reposData) {
-            // Sort to maintain chronological bookmark order
-            bookmarkedRepos = repoIds.map(id => reposData.find(r => r.full_name === id)).filter(Boolean);
-        }
+if (!username) {
+    // Fallback: Generate and save if missing
+    try {
+        username = await generateUniqueUsername(session.user.name, session.user.email);
+        const client = await pool.connect();
+        await client.query('UPDATE "user" SET "username" = $1 WHERE id = $2', [username, session.user.id]);
+        client.release();
+    } catch (e) {
+        console.error("Error generating username in profile fallback", e);
+        // If fails, maybe redirect to an error page or show something?
+        // For now, let's just stay here (which might cause issues if we rely on username)
     }
-} catch (err) {
-    console.error('Failed to fetch bookmarks for profile', err);
-    errorMsg = 'Could not load your bookmarked repositories at this time. Please try again later.';
 }
 
-// User Initials Fallback
-const displayName = user.name || user.email.split('@')[0];
-const initial = displayName.charAt(0).toUpperCase();
-
-// Member since calculation (Better Auth stores dates usually)
-// If it's stored as Date object or string, parse and format
-const joinedDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
-    month: 'long',
-    year: 'numeric'
-}) : 'Recently';
+if (username) {
+    return Astro.redirect(`/${username}`);
+} else {
+    // Should not happen unless DB error
+    return Astro.redirect('/500'); 
+}
 ---
-
-<Layout title="Profile | Open Source Finder" description="View your profile and bookmarked repositories.">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
-        
-        <!-- Profile Header -->
-        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 md:p-8 mb-8 flex flex-col md:flex-row items-center md:items-start gap-6">
-            <div class="flex-shrink-0 relative">
-                {user.image ? (
-                    <img src={user.image} alt={displayName} class="h-24 w-24 rounded-full border-4 border-white dark:border-gray-800 shadow-lg object-cover" />
-                ) : (
-                    <div class="h-24 w-24 rounded-full bg-indigo-500 text-white flex items-center justify-center text-4xl font-bold border-4 border-white dark:border-gray-800 shadow-lg">
-                        {initial}
-                    </div>
-                )}
-                <div class="absolute bottom-1 right-1 h-5 w-5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" title="Online"></div>
-            </div>
-            
-            <div class="text-center md:text-left flex-grow">
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{displayName}</h1>
-                <p class="text-gray-600 dark:text-gray-400 mb-4">{user.email}</p>
-                
-                <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium border border-indigo-100 dark:border-indigo-800/50">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        Joined {joinedDate}
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium border border-green-100 dark:border-green-800/50">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
-                        {bookmarkedRepos.length} Bookmarks
-                    </span>
-                </div>
-            </div>
-            
-            <div class="mt-4 md:mt-0 flex-shrink-0">
-                <button id="profile-logout-btn" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                    <svg class="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Sign Out
-                </button>
-            </div>
-        </div>
-
-        <!-- Bookmarks Section -->
-        <div>
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <svg class="w-6 h-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"></path></svg>
-                    Saved Repositories
-                </h2>
-            </div>
-            
-            {errorMsg && (
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6" role="alert">
-                    <p>{errorMsg}</p>
-                </div>
-            )}
-            
-            {!errorMsg && bookmarkedRepos.length > 0 ? (
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    {bookmarkedRepos.map((repo: any) => (
-                        <RepoCard repo={repo} repoIssues={[]} />
-                    ))}
-                </div>
-            ) : (!errorMsg && (
-                <div class="bg-white dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 p-12 text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 mb-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
-                    </div>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No bookmarks yet</h3>
-                    <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">Explore outstanding open-source repositories and save them here by clicking the bookmark icon to easily find them later.</p>
-                    <a href="/" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                        Browse Repositories
-                    </a>
-                </div>
-            ))}
-        </div>
-
-    </div>
-</Layout>
-
-<script>
-    import { authClient } from '../lib/auth-client';
-    
-    document.getElementById('profile-logout-btn')?.addEventListener('click', async () => {
-        await authClient.signOut();
-        window.location.href = '/';
-    });
-</script>

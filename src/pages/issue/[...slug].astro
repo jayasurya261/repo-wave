@@ -5,7 +5,8 @@ import { supabase } from '../../lib/supabase';
 import { fetchAllRecords } from '../../lib/fetchAll';
 
 export async function getStaticPaths() {
-    const issues = await fetchAllRecords('issues', '*, repos(language, name, stars, forks, health_score)', 'created_at', false, 5000);
+    const limit = import.meta.env.DEV ? 100 : 5000;
+    const issues = await fetchAllRecords('issues', '*, repos(language, name, stars, forks, health_score)', 'created_at', false, limit);
     return issues.map((issue: any) => {
         // Extract issue number from URL: https://github.com/owner/repo/issues/123
         const parts = issue.url.split('/');
