@@ -72,8 +72,22 @@ export async function GET({ site }: { site: URL }) {
     '/signup'
   ];
 
+  // Helper to escape XML special characters
+  const escapeXml = (unsafe: string) => {
+    return unsafe.replace(/[<>&'"]/g, (c) => {
+      switch (c) {
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '&': return '&amp;';
+        case '\'': return '&apos;';
+        case '"': return '&quot;';
+        default: return c;
+      }
+    });
+  };
+
   const staticUrls = staticPages.map(path => 
-    `<url><loc>${baseUrl}${path}</loc><changefreq>daily</changefreq><priority>${path === '' ? '1.0' : '0.8'}</priority></url>`
+    `<url><loc>${escapeXml(baseUrl + path)}</loc><changefreq>daily</changefreq><priority>${path === '' ? '1.0' : '0.8'}</priority></url>`
   ).join('');
 
   const issueUrls = Array.from(new Set(allIssues.filter(i => i && i.url && i.repo_id).map(issue => {
@@ -83,12 +97,12 @@ export async function GET({ site }: { site: URL }) {
     const slug = `${issue.repo_id}/${number}`;
     const lastMod = issue.created_at ? new Date(issue.created_at).toISOString() : new Date().toISOString();
 
-    return `<url><loc>${baseUrl}/issue/${slug}</loc><lastmod>${lastMod}</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>`;
+    return `<url><loc>${escapeXml(`${baseUrl}/issue/${slug}`)}</loc><lastmod>${lastMod}</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>`;
   }))).join('');
 
   const repoUrls = Array.from(new Set(allRepos.filter(r => r && r.full_name).map(repo => {
     const lastMod = repo.last_active ? new Date(repo.last_active).toISOString() : new Date().toISOString();
-    return `<url><loc>${baseUrl}/repo/${repo.full_name}</loc><lastmod>${lastMod}</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>`;
+    return `<url><loc>${escapeXml(`${baseUrl}/repo/${repo.full_name}`)}</loc><lastmod>${lastMod}</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>`;
   }))).join('');
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
