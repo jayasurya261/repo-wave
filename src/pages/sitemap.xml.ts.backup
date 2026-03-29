@@ -1,0 +1,133 @@
+// src/pages/sitemap.xml.ts
+import { supabase } from '../lib/supabase';
+
+export async function GET({ site }: { site: URL }) {
+  const baseUrl = site ? site.toString().replace(/\/$/, '') : 'https://www.repowave.space';
+  
+  // 1. Fetch Issues (robust pagination)
+  let allIssues: any[] = [];
+  let hasMoreIssues = true;
+  let issuePage = 0;
+  const pageSize = 500; // Lowered to 500 to prevent timeouts/limits
+
+  while (hasMoreIssues) {
+    const from = issuePage * pageSize;
+    const to = from + pageSize - 1;
+
+    const { data, error } = await supabase
+      .from('issues')
+      .select('url, repo_id, created_at')
+      .range(from, to);
+
+    if (error) {
+      console.error(`Error fetching issues for sitemap at page ${issuePage}:`, error);
+      break;
+    }
+
+    if (data && data.length > 0) {
+      allIssues = [...allIssues, ...data];
+      
+      // If we got a full page, there might be more
+      if (data.length === pageSize) {
+        issuePage++;
+      } else {
+        // Less than full page means end of data
+        hasMoreIssues = false;
+      }
+    } else {
+      hasMoreIssues = false;
+    }
+  }
+
+  // 2. Fetch Repos (robust pagination)
+  let allRepos: any[] = [];
+  let hasMoreRepos = true;
+  let repoPage = 0;
+
+  while (hasMoreRepos) {
+    const from = repoPage * pageSize;
+    const to = from + pageSize - 1;
+
+    const { data, error } = await supabase
+      .from('repos')
+      .select('full_name, created_at')
+      .range(from, to);
+
+    if (error) {
+      console.error(`Error fetching repos for sitemap at page ${repoPage}:`, error);
+      break;
+    }
+
+    if (data && data.length > 0) {
+      allRepos = [...allRepos, ...data];
+      
+      if (data.length === pageSize) {
+        repoPage++;
+      } else {
+        hasMoreRepos = false;
+      }
+    } else {
+      hasMoreRepos = false;
+    }
+  }
+
+  // 3. Static pages (can be manually added or fetched if you had a CMS)
+  const staticPages = [
+    '',
+    '/issues',
+    '/repositories',
+    '/about',
+    '/contact',
+    '/login',
+    '/signup'
+  ];
+
+  const staticUrls = staticPages.map(path => `
+  <url>
+    <loc>${baseUrl}${path}</loc>
+    <changefreq>daily</changefreq>
+    <priority>${path === '' ? '1.0' : '0.8'}</priority>
+  </url>`).join('');
+
+  const issueUrls = allIssues.map(issue => {
+    // Reconstruct slug from repo_id and url number
+    const parts = issue.url.split('/');
+    const number = parts[parts.length - 1];
+    const slug = `${issue.repo_id}/${number}`;
+    const lastMod = issue.created_at ? new Date(issue.created_at).toISOString() : new Date().toISOString();
+
+    return `
+  <url>
+    <loc>${baseUrl}/issue/${slug}</loc>
+    <lastmod>${lastMod}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+  }).join('');
+
+  const repoUrls = allRepos.map(repo => {
+    const lastMod = repo.created_at ? new Date(repo.created_at).toISOString() : new Date().toISOString();
+    return `
+  <url>
+    <loc>${baseUrl}/repo/${repo.full_name}</loc>
+    <lastmod>${lastMod}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+  }).join('');
+
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${staticUrls}
+${issueUrls}
+${repoUrls}
+</urlset>`.trim();
+
+  return new Response(sitemap, {
+    headers: {
+      'Content-Type': 'application/xml',
+      // Cache for 12 hours (43200 seconds) to balance freshness and load
+      'Cache-Control': 'public, max-age=43200, s-maxage=43200'
+    }
+  });
+}
