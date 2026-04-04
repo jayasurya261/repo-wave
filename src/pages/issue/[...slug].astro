@@ -1,34 +1,42 @@
 ---
-export const prerender = true;
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
-import { fetchAllRecords } from '../../lib/fetchAll';
 
-export async function getStaticPaths() {
-    const limit = import.meta.env.DEV ? 100 : 5000;
-    const issues = await fetchAllRecords('issues', '*, repos(language, name, stars, forks, health_score)', 'created_at', false, limit);
-    return issues.map((issue: any) => {
-        // Extract issue number from URL: https://github.com/owner/repo/issues/123
-        const parts = issue.url.split('/');
-        const number = parts[parts.length - 1];
-        const slug = `${issue.repo_id}/${number}`;
-        return {
-            params: { slug },
-            props: { 
-                issue: {
-                    ...issue,
-                    language: issue.repos?.language || '',
-                    repoName: issue.repos?.name || issue.repo_id.split('/').pop() || '',
-                    repoStars: issue.repos?.stars || 0,
-                    repoForks: issue.repos?.forks || 0,
-                    issueNumber: number
-                }
-            }
-        };
-    });
+const { slug } = Astro.params;
+
+if (!slug) {
+    return Astro.redirect('/404');
 }
 
-const { issue } = Astro.props;
+const parts = slug.split('/');
+if (parts.length < 3) {
+    return Astro.redirect('/404');
+}
+
+const issueNumberStr = parts.pop();
+const repoId = parts.join('/');
+
+const expectedUrl = `https://github.com/${repoId}/issues/${issueNumberStr}`;
+
+const { data: issueData, error } = await supabase
+    .from('issues')
+    .select('*, repos(language, name, stars, forks, health_score)')
+    .eq('url', expectedUrl)
+    .single();
+
+if (error || !issueData) {
+    return Astro.redirect('/404');
+}
+
+const issue = {
+    ...issueData,
+    language: issueData.repos?.language || '',
+    repoName: issueData.repos?.name || issueData.repo_id.split('/').pop() || '',
+    repoStars: issueData.repos?.stars || 0,
+    repoForks: issueData.repos?.forks || 0,
+    issueNumber: issueNumberStr
+};
+
 const labels: any[] = Array.isArray(issue.labels?.tags) ? issue.labels.tags : (Array.isArray(issue.labels) ? issue.labels : []);
 
 let diffCategory = 'Unknown';
