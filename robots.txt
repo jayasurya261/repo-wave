@@ -1,0 +1,6 @@
+# Allow all bots (Search Engines and AI Crawlers)
+User-agent: *
+Allow: /
+
+# Link to your sitemap to help bots find your content faster
+Sitemap: https://repowave.space/sitemap.xml
