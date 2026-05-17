@@ -83,7 +83,7 @@ try {
 				</p>
 
 				<!-- Social Proof Stats -->
-				<div class="grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto mb-10">
+				<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto mb-10">
 					<div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-4 border border-green-200 dark:border-green-800">
 						<div class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{repoCount.toLocaleString()}</div>
 						<div class="text-sm text-gray-600 dark:text-gray-400">Repositories</div>
@@ -178,11 +178,17 @@ try {
 
 			<!-- Main Content Area -->
 			<main class="flex-grow min-w-0">
-				
+
 				<SearchBar />
 
 				<!-- Issues Section -->
 				<section class="mb-12">
+					<!-- Issue Sort Tabs -->
+					<div class="flex gap-2 mb-6" data-active-sort="recent">
+						<button data-sort="recent" data-active="true" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-green-600 bg-green-600 text-white transition-colors dark:border-green-600">Recent</button>
+						<button data-sort="trending" data-active="false" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">This Week</button>
+						<button data-sort="easy" data-active="false" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">Easiest</button>
+					</div>
 					<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
 						Recent Issues
 						<span id="issueCount" class="text-sm font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{issues ? issues.length : 0}</span>
@@ -211,6 +217,13 @@ try {
 
 				<!-- Repos Section -->
 				<section>
+					<!-- Repo Sort Tabs -->
+					<div class="flex gap-2 mb-6" data-active-sort="popular">
+						<button data-sort="popular" data-active="true" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-green-600 bg-green-600 text-white transition-colors dark:border-green-600">Popular</button>
+						<button data-sort="beginner" data-active="false" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">Beginner Friendly</button>
+						<button data-sort="trending" data-active="false" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">Trending</button>
+					</div>
+
 					<h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
 						Repositories
 						<span id="repoCount" class="text-sm font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{repos ? repos.length : 0}</span>

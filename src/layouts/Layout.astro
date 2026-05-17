@@ -91,9 +91,46 @@ const websiteJsonLd = JSON.stringify({
 		<Footer />
 		<Analytics />
 
+		<!-- Onboarding Modal -->
+		<div id="onboardingOverlay" class="fixed inset-0 z-50 hidden bg-black/50 items-center justify-center p-4" style="display: none;">
+			<style>
+				#onboardingOverlay:not(.hidden) {
+					display: flex;
+				}
+			</style>
+			<div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-8">
+				<div id="onboardingSteps" class="mb-6"></div>
+
+				<!-- Step Indicator -->
+				<div id="onboardingIndicator" class="mb-6"></div>
+
+				<!-- Navigation Buttons -->
+				<div class="flex gap-3">
+					<button id="onboardingPrev" class="flex-1 px-4 py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+						Back
+					</button>
+					<button id="onboardingNext" class="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors">
+						Next
+					</button>
+				</div>
+
+				<!-- Close button -->
+				<button id="onboardingClose" onclick="document.getElementById('onboardingOverlay').classList.add('hidden')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+					</svg>
+				</button>
+			</div>
+		</div>
+
+		<!-- Help button -->
+		<button id="onboardingHelpBtn" class="fixed bottom-6 right-6 z-40 bg-green-600 hover:bg-green-700 text-white font-bold rounded-full w-10 h-10 flex items-center justify-center text-lg transition-colors shadow-lg">
+			?
+		</button>
+
 		<!-- Auth Toast -->
 		<div id="auth-toast" class="fixed bottom-6 left-6 z-[100] transform -translate-x-[calc(100%+2rem)] transition-transform duration-500 ease-out pointer-events-none">
-			<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl px-5 py-4 flex items-center gap-3 min-w-[320px] pointer-events-auto">
+			<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl px-5 py-4 flex items-center gap-3 w-[calc(100vw-3rem)] sm:w-auto sm:min-w-[320px] pointer-events-auto">
 				<div class="flex-shrink-0 w-10 h-10 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center">
 					<svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -145,6 +182,8 @@ const websiteJsonLd = JSON.stringify({
 				}, 1000);
 			};
 		</script>
+
+		<script is:inline src="/onboarding.js"></script>
 	</body>
 </html>
 
