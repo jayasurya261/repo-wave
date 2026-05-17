@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+﻿import type { APIRoute } from 'astro';
 import { supabase } from '../../lib/supabase';
 
 export const prerender = false;
@@ -21,7 +21,7 @@ export const GET: APIRoute = async ({ url }) => {
         .select('*, repos(language)', { count: 'exact' })
         .order('created_at', { ascending: false });
 
-    // Language filter — join repos table
+    // Language filter â€” join repos table
     if (lang !== 'all') {
         query = query.eq('repos.language', lang);
     }

@@ -1,5 +1,5 @@
 ---
-export const prerender = true;
+export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
 import { fetchAllRecords } from '../../lib/fetchAll';
@@ -85,8 +85,8 @@ const repoJsonLd = JSON.stringify({
     "dateModified": repo.last_active || undefined
 });
 
-const pageTitle = `${repo.name} — ${repo.language || 'Open Source'} Repository | Open Source Finder`;
-const pageDesc = `Explore ${repo.full_name}: a ${repo.language || 'open-source'} repo with ${repo.stars?.toLocaleString()} stars, ${repo.forks?.toLocaleString()} forks, and ${processedIssues.length} beginner-friendly issues. Difficulty: ${diffCategory}.`;
+const pageTitle = `${repo.name}: ${repo.language || 'Open Source'} Repository with ${processedIssues.length} Good First Issues | Repo Wave`;
+const pageDesc = `Find beginner-friendly issues in ${repo.full_name}, a ${repo.language || 'open-source'} repository with ${repo.stars?.toLocaleString()} stars. ${processedIssues.length} good-first-issues, difficulty: ${diffCategory}. Start contributing today.`;
 ---
 
 <Layout title={pageTitle} description={pageDesc} jsonLd={repoJsonLd}>

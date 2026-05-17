@@ -1,5 +1,5 @@
----
-export const prerender = true;
+﻿---
+export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
@@ -16,7 +16,7 @@ let fetchFailed = false;
 
 try {
 	repos = await fetchAllRecords('repos', '*', 'stars', false, PAGE_SIZE);
-	// Only fetch issues for the repos we're actually showing — no more fetching 5000 rows
+	// Only fetch issues for the repos we're actually showing â€” no more fetching 5000 rows
 	if (repos.length > 0) {
 		const repoIds = repos.map((r: any) => r.full_name);
 		const { data: issuesRaw } = await supabase
@@ -36,7 +36,7 @@ try {
 	fetchFailed = true;
 }
 
-// Unique languages — a small separate query
+// Unique languages â€” a small separate query
 let uniqueLanguages: string[] = [];
 try {
 	const langRows = await fetchAllRecords('repos', 'language', 'language', true, 5000);
@@ -58,7 +58,7 @@ try {
 
 
 
-<Layout title="Repositories | Open Source Finder" description="Explore the highest-rated open-source repositories by language, health score, and difficulty.">
+<Layout title="Top Open Source Repositories - Filter by Language & Difficulty | Repo Wave" description="Discover the best open-source repositories curated for beginners. Filter by programming language, difficulty level, and find projects perfect for your first contribution.">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
 		{fetchFailed && (

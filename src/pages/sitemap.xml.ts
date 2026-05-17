@@ -1,4 +1,4 @@
-// src/pages/sitemap.xml.ts
+﻿// src/pages/sitemap.xml.ts
 import { supabase } from '../lib/supabase';
 
 export async function GET({ site }: { site: URL }) {

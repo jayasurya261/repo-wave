@@ -17,9 +17,9 @@ if (repo.health_score != null) {
     <div class="p-5 flex-grow">
         <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2 truncate">
-                <button type="button" class="bookmark-btn flex-shrink-0 text-gray-300 hover:text-indigo-500 dark:text-gray-600 dark:hover:text-amber-400 focus:outline-none transition-colors" data-repo-id={repo.full_name} title="Bookmark Repository">
+                <button type="button" class="bookmark-btn flex-shrink-0 text-gray-300 hover:text-green-500 dark:text-gray-600 dark:hover:text-amber-400 focus:outline-none transition-colors" data-repo-id={repo.full_name} title="Bookmark Repository">
                     <svg class="w-5 h-5 bookmark-icon-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
-                    <svg class="w-5 h-5 bookmark-icon-solid hidden text-indigo-500 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    <svg class="w-5 h-5 bookmark-icon-solid hidden text-green-500 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
                 </button>
                 <button type="button" class="repo-favourite-btn flex-shrink-0 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 focus:outline-none transition-colors" data-repo-id={repo.full_name} title="Add to Favourites">
                     <svg class="w-5 h-5 favourite-icon-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,9 +29,9 @@ if (repo.health_score != null) {
                         <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                     </svg>
                 </button>
-                <a href={`/repo/${repo.full_name}`} class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{repo.name}</a>
+                <a href={`/repo/${repo.full_name}`} class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-green-600 dark:hover:text-green-400 transition-colors">{repo.name}</a>
             </div>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 ml-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/40 text-green-800 dark:text-green-300 ml-2">
                 {repo.language}
             </span>
         </div>
@@ -61,7 +61,7 @@ if (repo.health_score != null) {
     </div>
     <div class="bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 w-full mt-auto">
         <details class="group">
-            <summary class="p-4 flex items-center justify-between cursor-pointer w-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors list-none outline-none">
+            <summary class="p-4 flex items-center justify-between cursor-pointer w-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors list-none outline-none">
                 <span>View Active Issues ({repoIssues ? repoIssues.length : 0})</span>
                 <span class="transition-transform group-open:rotate-180">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -77,7 +77,7 @@ if (repo.health_score != null) {
                         const issueNum = parts[parts.length - 1];
                         return (
                         <div class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
-                            <a href={`/issue/${repo.full_name}/${issueNum}`} class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline block truncate mb-1" title={issue.title}>
+                            <a href={`/issue/${repo.full_name}/${issueNum}`} class="text-sm font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 hover:underline block truncate mb-1" title={issue.title}>
                                 {issue.title}
                             </a>
                             <div class="flex items-center justify-between">

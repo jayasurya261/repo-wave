@@ -1,4 +1,4 @@
-import type { APIRoute } from "astro";
+﻿import type { APIRoute } from "astro";
 import { auth } from "../../../lib/auth";
 import { supabase } from "../../../lib/supabase";
 

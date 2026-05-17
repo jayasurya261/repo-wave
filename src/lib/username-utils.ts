@@ -31,14 +31,22 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
 
 export function generateBaseUsernames(name: string, email: string): string[] {
     const suggestions: string[] = [];
-    
-    // Clean name: remove special chars, spaces to hyphens or nothing
-    const cleanName = name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
-    if (cleanName) suggestions.push(cleanName);
 
-    // Clean email prefix
-    const emailPrefix = email.split('@')[0].toLowerCase().replace(/[^a-z0-9-]/g, '');
-    if (emailPrefix && emailPrefix !== cleanName) suggestions.push(emailPrefix);
+    // Clean name: remove special chars, convert spaces to hyphens
+    const cleanName = name.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')  // Remove special chars
+        .trim()
+        .replace(/\s+/g, '-')            // Convert spaces to hyphens
+        .replace(/-+/g, '-');             // Remove consecutive hyphens
+    if (cleanName && cleanName !== '-') suggestions.push(cleanName);
+
+    // Clean email prefix: remove special chars, convert dots to hyphens
+    const emailPrefix = email.split('@')[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9.-]/g, '')     // Keep alphanumeric, dots, hyphens
+        .replace(/\.+/g, '-')             // Convert dots to hyphens
+        .replace(/-+/g, '-');             // Remove consecutive hyphens
+    if (emailPrefix && emailPrefix !== '-' && emailPrefix !== cleanName) suggestions.push(emailPrefix);
 
     return suggestions;
 }

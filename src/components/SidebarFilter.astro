@@ -22,13 +22,13 @@ const { uniqueLanguages } = Astro.props;
 				<h3 class="text-base md:text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 md:mb-4">Filter by Language</h3>
 				<div class="space-y-2 max-h-48 md:max-h-96 overflow-y-auto pr-2 custom-scrollbar">
 					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="language" value="all" checked class="w-4 h-4 text-indigo-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-indigo-600 dark:group-hover/label:text-indigo-400 transition-colors">All Languages</span>
+						<input type="radio" name="language" value="all" checked class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500">
+						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">All Languages</span>
 					</label>
 					{uniqueLanguages.map((lang: any) => (
 						<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-							<input type="radio" name="language" value={lang} class="w-4 h-4 text-indigo-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500">
-							<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-indigo-600 dark:group-hover/label:text-indigo-400 transition-colors">{lang}</span>
+							<input type="radio" name="language" value={lang} class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500">
+							<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">{lang}</span>
 						</label>
 					))}
 				</div>
@@ -39,24 +39,24 @@ const { uniqueLanguages } = Astro.props;
 				<h3 class="text-base md:text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 md:mb-4">Filter by Difficulty</h3>
 				<div class="space-y-2 max-h-48 md:max-h-96 overflow-y-auto pr-2 custom-scrollbar">
 					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="difficulty" value="all" checked class="w-4 h-4 text-indigo-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Any Difficulty">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-indigo-600 dark:group-hover/label:text-indigo-400 transition-colors">Any Difficulty</span>
+						<input type="radio" name="difficulty" value="all" checked class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Any Difficulty">
+						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">Any Difficulty</span>
 					</label>
 					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="difficulty" value="easy" class="w-4 h-4 text-indigo-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Easy Difficulty">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-indigo-600 dark:group-hover/label:text-indigo-400 transition-colors">Easy</span>
+						<input type="radio" name="difficulty" value="easy" class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Easy Difficulty">
+						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">Easy</span>
 					</label>
 					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="difficulty" value="medium" class="w-4 h-4 text-indigo-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Medium Difficulty">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-indigo-600 dark:group-hover/label:text-indigo-400 transition-colors">Medium</span>
+						<input type="radio" name="difficulty" value="medium" class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Medium Difficulty">
+						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">Medium</span>
 					</label>
 					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="difficulty" value="hard" class="w-4 h-4 text-indigo-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Hard Difficulty">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-indigo-600 dark:group-hover/label:text-indigo-400 transition-colors">Hard</span>
+						<input type="radio" name="difficulty" value="hard" class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Hard Difficulty">
+						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">Hard</span>
 					</label>
 					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="difficulty" value="very-hard" class="w-4 h-4 text-indigo-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Very Hard Difficulty">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-indigo-600 dark:group-hover/label:text-indigo-400 transition-colors">Very Hard</span>
+						<input type="radio" name="difficulty" value="very-hard" class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Very Hard Difficulty">
+						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">Very Hard</span>
 					</label>
 				</div>
 			</div>

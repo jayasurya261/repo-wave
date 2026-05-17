@@ -1,0 +1,65 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout
+  title="Open Source Blog - Tips, Guides & Success Stories | Repo Wave"
+  description="Read articles about open-source contributions, developer tips, and success stories from developers who found their first issue on Repo Wave.">
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <header class="mb-12 text-center">
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4">Open Source Blog</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400">Learn, grow, and find success in the open-source community.</p>
+    </header>
+
+    <!-- Blog Posts Grid -->
+    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+
+      <!-- Article 1 -->
+      <a href="/blog/tips-for-open-source" class="group bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-sm hover:shadow-lg border border-gray-200 dark:border-gray-800 transition-all">
+        <div class="p-6 flex flex-col h-full">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-full">Tips</span>
+            <span class="text-xs text-gray-500">6 min read</span>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+            10 Pro Tips for Open Source Success
+          </h2>
+          <p class="text-gray-600 dark:text-gray-400 flex-grow mb-4">
+            Discover insider tips to make your open-source journey smoother, from choosing the right project to getting your PR merged.
+          </p>
+          <div class="text-sm text-green-600 dark:text-green-400 font-medium">Read More →</div>
+        </div>
+      </a>
+
+      <!-- Article 2: Placeholder for future content -->
+      <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6 flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700">
+        <div class="text-center">
+          <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">More articles coming soon...</p>
+        </div>
+      </div>
+
+      <!-- Article 3: Placeholder for future content -->
+      <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6 flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700">
+        <div class="text-center">
+          <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Stay tuned...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Newsletter CTA -->
+    <section class="mt-16 bg-gradient-to-r from-green-600 to-green-700 rounded-lg p-8 text-center text-white">
+      <h2 class="text-3xl font-bold mb-3">Get Weekly Tips</h2>
+      <p class="text-green-100 mb-6">Subscribe to get open-source tips, issue highlights, and success stories delivered to your inbox.</p>
+      <form class="flex flex-col sm:flex-row gap-3 justify-center">
+        <input type="email" placeholder="Enter your email" class="px-4 py-3 rounded-lg text-gray-900 min-w-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" />
+        <button type="submit" class="px-8 py-3 bg-white text-green-600 font-semibold rounded-lg hover:bg-green-50 transition-colors">Subscribe</button>
+      </form>
+    </section>
+  </article>
+</Layout>

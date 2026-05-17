@@ -35,10 +35,9 @@ export async function fetchAllRecords(table: string, selectQuery: string, orderB
         // Advance by the number of rows actually returned, in case max_rows was lower than step
         from += data.length;
 
-        // If the number of rows returned is less than what Supabase 'max_rows' configuration returns
-        // we can assume it's the end of the data. 
-        // We do a safe check: if it returned less than 100, it's definitely the end (since 100 is min typical max_rows).
-        if (data.length < 100 && step >= 100) {
+        // If the number of rows returned is less than the step size, we've reached the end
+        // Supabase default max_rows is 1000, so if we get fewer rows than step (999), we're done
+        if (data.length < step) {
             break;
         }
     }

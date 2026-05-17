@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+﻿import type { APIRoute } from 'astro';
 import { supabase } from '../../lib/supabase';
 
 export const prerender = false;
@@ -6,7 +6,7 @@ export const prerender = false;
 const PAGE_SIZE = 20;
 
 // Difficulty score boundaries (same as RepoCard / IssueCard logic)
-// health_score >= 75 → easy, >=50 → medium, >=25 → hard, else → very-hard
+// health_score >= 75 â†’ easy, >=50 â†’ medium, >=25 â†’ hard, else â†’ very-hard
 function difficultyFilter(query: any, difficulty: string) {
     if (difficulty === 'easy') return query.gte('health_score', 75);
     if (difficulty === 'medium') return query.gte('health_score', 50).lt('health_score', 75);

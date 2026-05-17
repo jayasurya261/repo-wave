@@ -1,0 +1,190 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout
+  title="10 Pro Tips for Open Source Success - Learn How to Contribute | Repo Wave"
+  description="Master open-source contributions with these 10 expert tips. Learn what maintainers want, how to write better PRs, and how to stand out as a contributor.">
+  <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <a href="/blog" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Back to Blog
+    </a>
+
+    <header class="mb-10">
+      <div class="flex items-center gap-3 mb-4 text-sm font-medium text-gray-500">
+        <span class="bg-indigo-100 px-2 py-1 rounded text-indigo-700">Tips & Advice</span>
+        <span>&middot;</span>
+        <span>6 min read</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">10 Pro Tips for Open Source Success</h1>
+      <p class="text-xl text-gray-600 leading-relaxed">Discover the insider secrets that make your contributions stand out and help you succeed in open-source development.</p>
+    </header>
+
+    <div class="prose prose-lg prose-indigo text-gray-700 max-w-none">
+
+      <h2>1. Start Small, Think Big</h2>
+      <p>
+        Your first contribution should fix a typo, improve a comment, or add a small feature. Don't try to refactor the entire codebase on day one. Small wins build momentum and help you understand the codebase incrementally.
+      </p>
+      <p>
+        <strong>Action:</strong> Look for issues labeled "good first issue," "help wanted," or "documentation."
+      </p>
+
+      <h2>2. Read the CONTRIBUTING.md File</h2>
+      <p>
+        Before you even look at code, open <code>CONTRIBUTING.md</code>. This file tells you:
+      </p>
+      <ul>
+        <li>How to set up the development environment</li>
+        <li>Code style requirements</li>
+        <li>How to run tests</li>
+        <li>How to submit a Pull Request</li>
+      </ul>
+      <p>
+        Respecting the contribution guide shows you're serious and makes the maintainer's job easier.
+      </p>
+
+      <h2>3. Communicate Before You Code</h2>
+      <p>
+        Don't spend 3 hours coding a solution only to have the maintainer say "We don't want that feature." Instead:
+      </p>
+      <ul>
+        <li>Comment on the issue and ask for clarification</li>
+        <li>Propose your approach in a comment</li>
+        <li>Wait for approval before diving in</li>
+      </ul>
+      <p>
+        A simple comment like <em>"Hi! I'd like to work on this. My approach would be to [describe]. Does that sound good?"</em> saves hours of wasted effort.
+      </p>
+
+      <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 dark:border-green-600 p-4 my-6 rounded-r-lg">
+        <p class="text-green-800 dark:text-green-300 font-medium m-0"><strong>Pro Tip:</strong> Some maintainers assign issues to contributors. Asking first prevents duplicate work—someone else might already be on it.</p>
+      </div>
+
+      <h2>4. Write Clear, Focused Pull Requests</h2>
+      <p>
+        When you submit a PR, the description matters as much as the code:
+      </p>
+      <ul>
+        <li>Reference the issue it fixes: "Fixes #123"</li>
+        <li>Explain what changed and why</li>
+        <li>List how to test the changes</li>
+        <li>Mention if you added tests</li>
+      </ul>
+      <p>
+        A maintainer reading your PR should understand your changes in under 2 minutes.
+      </p>
+
+      <h2>5. Follow the Code Style</h2>
+      <p>
+        Every project has conventions:
+      </p>
+      <ul>
+        <li>JavaScript: spaces vs. tabs, quotes, semicolons</li>
+        <li>Python: 4 spaces indentation, PEP 8 style</li>
+        <li>Rust: formatting via <code>rustfmt</code></li>
+      </ul>
+      <p>
+        Run linters and formatters before submitting. Most projects have CI that will fail your PR if the style is wrong. Fix it before submitting, not after.
+      </p>
+
+      <h2>6. Write Tests for Your Changes</h2>
+      <p>
+        This single tip will make your PR stand out immediately. Most new contributors don't write tests. Those who do get merged faster.
+      </p>
+      <ul>
+        <li>Add unit tests for your code</li>
+        <li>Test both happy and unhappy paths</li>
+        <li>Make sure existing tests still pass</li>
+      </ul>
+      <p>
+        You don't need 100% coverage, but a test or two shows you care about quality.
+      </p>
+
+      <h2>7. Respond to Feedback Gracefully</h2>
+      <p>
+        Maintainers will ask for changes. This is normal—it doesn't mean you failed. When they ask for revisions:
+      </p>
+      <ul>
+        <li>Don't get defensive</li>
+        <li>Ask questions if you don't understand</li>
+        <li>Make the changes promptly</li>
+        <li>Thank them for the feedback</li>
+      </ul>
+      <p>
+        This is how you build a reputation as a professional collaborator.
+      </p>
+
+      <h2>8. Update Your Local Fork Before PR</h2>
+      <p>
+        Before submitting a PR, sync your fork with the upstream main branch:
+      </p>
+      <code class="block bg-gray-100 p-3 rounded my-4">
+git fetch upstream<br/>
+git rebase upstream/main
+      </code>
+      <p>
+        This prevents merge conflicts and shows your PR is based on the latest code.
+      </p>
+
+      <h2>9. Document Your Code</h2>
+      <p>
+        Add comments to complex logic. Docstrings for functions. If someone who's never seen your code needs to understand it, will they?
+      </p>
+      <ul>
+        <li>Write clear variable names (not just <code>x</code>)</li>
+        <li>Explain the "why," not the "what"</li>
+        <li>Add docstrings/JSDoc comments to public functions</li>
+      </ul>
+
+      <h2>10. Be Patient and Appreciative</h2>
+      <p>
+        Open-source maintainers are volunteers. They might take days or weeks to review your PR. That's okay. When they finally merge:
+      </p>
+      <ul>
+        <li>Say thank you</li>
+        <li>Ask if there's more you can help with</li>
+        <li>Share your contribution (it's a real accomplishment!)</li>
+      </ul>
+      <p>
+        Building relationships with maintainers opens doors to mentorship and more opportunities.
+      </p>
+
+      <hr class="my-10 border-gray-200" />
+
+      <h2>Bonus: Common Mistakes to Avoid</h2>
+
+      <h3>❌ Don't</h3>
+      <ul>
+        <li>Submit massive PRs that refactor multiple systems</li>
+        <li>Skip the CONTRIBUTING.md file</li>
+        <li>Change unrelated code in your PR</li>
+        <li>Ignore linter/CI failures</li>
+        <li>Be rude or impatient with maintainers</li>
+        <li>Submit code with zero tests</li>
+      </ul>
+
+      <h3>✅ Do</h3>
+      <ul>
+        <li>Start with tiny PRs to learn the process</li>
+        <li>Read contribution guidelines</li>
+        <li>Keep PRs focused and small</li>
+        <li>Fix CI failures before asking for review</li>
+        <li>Be respectful and patient</li>
+        <li>Write at least one test</li>
+      </ul>
+
+      <hr class="my-10 border-gray-200" />
+
+      <h2>Your Next Step</h2>
+      <p>
+        Ready to apply these tips? Head to <a href="/repositories" class="text-indigo-600 hover:underline">Repo Wave's repositories page</a> and find a project that excites you. Pick an "Easy" difficulty issue, read the CONTRIBUTING.md, and submit your first PR today.
+      </p>
+
+      <p class="text-gray-500 italic">
+        Have a tip to add? <a href="https://github.com/jayasurya261/repo-wave" class="text-indigo-600 hover:underline">Contribute to Repo Wave</a> and help other beginners!
+      </p>
+    </div>
+  </article>
+</Layout>

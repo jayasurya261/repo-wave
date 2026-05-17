@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from '../layouts/Layout.astro';
 import RepoCard from '../components/RepoCard.astro';
 import IssueCard from '../components/IssueCard.astro';
@@ -53,7 +53,7 @@ try {
             </div>
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Bookmarks</h1>
-                <p class="text-gray-500 dark:text-gray-400 text-sm">{bookmarkedRepos.length} repos · {bookmarkedIssues.length} issues saved</p>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">{bookmarkedRepos.length} repos Â· {bookmarkedIssues.length} issues saved</p>
             </div>
         </div>
 
@@ -80,7 +80,7 @@ try {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
                     </svg>
                     <h3 class="font-medium text-gray-900 dark:text-white mb-1">No bookmarked repositories</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Click the 🔖 ribbon icon on any repo to save it here.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Click the ðŸ”– ribbon icon on any repo to save it here.</p>
                     <a href="/repositories" class="inline-flex px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors">Browse Repositories</a>
                 </div>
             )}
@@ -97,7 +97,7 @@ try {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
                     </svg>
                     <h3 class="font-medium text-gray-900 dark:text-white mb-1">No bookmarked issues</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Click the 🔖 ribbon icon on any issue to save it here.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Click the ðŸ”– ribbon icon on any issue to save it here.</p>
                     <a href="/issues" class="inline-flex px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors">Browse Issues</a>
                 </div>
             )}

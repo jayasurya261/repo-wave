@@ -1,4 +1,4 @@
-
+﻿
 import type { APIRoute } from "astro";
 import { auth } from "../../../lib/auth";
 import { pool } from "../../../lib/db";

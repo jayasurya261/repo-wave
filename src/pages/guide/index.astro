@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from '../../layouts/Layout.astro';
 
 const guides = [
@@ -6,58 +6,89 @@ const guides = [
     title: "How to Find Good First Issues",
     description: "A step-by-step guide to discovering low-barrier tasks perfect for beginners making their first open-source contribution.",
     href: "/guide/finding-good-first-issues",
-    readTime: "5 min read"
+    readTime: "5 min read",
+    icon: "search"
+  },
+  {
+    title: "Best Repositories for Beginners",
+    description: "Discover which open-source projects are most welcoming to new contributors. Learn how to evaluate repositories and pick the right one for you.",
+    href: "/guide/best-repos-for-beginners",
+    readTime: "8 min read",
+    icon: "star"
   },
   {
     title: "GitHub Contribution Guide",
     description: "The complete workflow from forking a repository to opening a Pull Request. Learn the etiquette of open-source collaboration.",
     href: "/guide/github-contribution-guide",
-    readTime: "8 min read"
+    readTime: "8 min read",
+    icon: "code"
   },
   {
     title: "Open Source Beginner Roadmap",
     description: "A comprehensive roadmap outlining what to learn, when to learn it, and how to gradually level up your open-source skills.",
     href: "/guide/open-source-beginner-roadmap",
-    readTime: "6 min read"
+    readTime: "6 min read",
+    icon: "map"
   },
   {
     title: "How Maintainers Review PRs",
     description: "Get inside the mind of an open-source maintainer. Understand what they look for, so your Pull Requests get merged faster.",
     href: "/guide/how-maintainers-review-prs",
-    readTime: "4 min read"
+    readTime: "4 min read",
+    icon: "check"
   },
   {
     title: "Common Git Mistakes & Fixes",
     description: "Accidentally committed to main? Messed up a rebase? Here are the most common Git mistakes beginners make and how to easily fix them.",
     href: "/guide/common-git-mistakes",
-    readTime: "7 min read"
+    readTime: "7 min read",
+    icon: "alert"
   }
 ];
 ---
 
-<Layout title="Open Source Guides | Repo Wave" description="Detailed guides and tutorials on how to master open-source contributions, Git, and GitHub.">
+<Layout
+  title="Complete Guide to Open Source Contributions - Learn How to Contribute | Repo Wave"
+  description="Master open-source contributions with our comprehensive guides. Learn how to find issues, contribute code, write better PRs, and level up your skills. Perfect for beginners."
+>
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div class="mb-12">
-      <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-4">Open Source Guide</h1>
-      <p class="text-xl text-gray-600 leading-relaxed">Everything you need to know about making meaningful contributions to open-source software, written simply and clearly.</p>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">Complete Guide to Open Source Contributions</h1>
+      <p class="text-xl text-gray-600 leading-relaxed mb-6">Everything you need to know about making meaningful contributions to open-source software. Whether you're a complete beginner or ready to level up, we have a guide for you.</p>
+
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-3 gap-4 bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-sm border border-green-200 dark:border-green-800">
+        <div>
+          <div class="font-bold text-green-600 dark:text-green-400">6</div>
+          <div class="text-gray-600 dark:text-gray-400">Comprehensive Guides</div>
+        </div>
+        <div>
+          <div class="font-bold text-green-600 dark:text-green-400">35+</div>
+          <div class="text-gray-600 dark:text-gray-400">Minutes of Reading</div>
+        </div>
+        <div>
+          <div class="font-bold text-green-600 dark:text-green-400">100%</div>
+          <div class="text-gray-600 dark:text-gray-400">Beginner-Friendly</div>
+        </div>
+      </div>
     </div>
 
     <div class="space-y-6">
       {guides.map((guide, index) => (
         <a href={guide.href} class="block group">
-          <article class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 hover:border-green-500 hover:shadow-md transition-all">
+          <article class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 md:p-8 hover:border-green-500 dark:hover:border-green-600 hover:shadow-md transition-all">
             <div class="flex items-center gap-3 mb-3 text-sm font-medium text-gray-500">
-              <span class="bg-gray-100 px-2 py-1 rounded text-indigo-700">Part {index + 1}</span>
+              <span class="bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded text-green-700 dark:text-green-400">Part {index + 1}</span>
               <span>&middot;</span>
               <span>{guide.readTime}</span>
             </div>
-            <h2 class="text-2xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors mb-3">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors mb-3">
               {guide.title}
             </h2>
-            <p class="text-gray-600 leading-relaxed">
+            <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
               {guide.description}
             </p>
-            <div class="mt-4 flex items-center text-indigo-600 font-medium group-hover:gap-2 transition-all gap-1">
+            <div class="mt-4 flex items-center text-green-600 dark:text-green-400 font-medium group-hover:gap-2 transition-all gap-1">
               Read guide
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>

@@ -1,5 +1,5 @@
----
-export const prerender = true;
+﻿---
+export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
@@ -12,6 +12,8 @@ const PAGE_SIZE = 20;
 let repos: any[] = [];
 let issues: any[] = [];
 let fetchFailed = false;
+let repoCount = 0;
+let issueCount = 0;
 
 try {
 	// Fetch only first page of repos for initial render
@@ -21,12 +23,19 @@ try {
 		...issue,
 		language: issue.repos?.language || ''
 	})) ?? [];
+
+	// Get total counts for social proof
+	const { supabase } = await import('../lib/supabase');
+	const { count: rCount } = await supabase.from('repos').select('*', { count: 'exact', head: true });
+	const { count: iCount } = await supabase.from('issues').select('*', { count: 'exact', head: true });
+	repoCount = rCount || 0;
+	issueCount = iCount || 0;
 } catch (err) {
 	console.error('[index] Failed to fetch data from Supabase:', err);
 	fetchFailed = true;
 }
 
-// Unique languages — fetched separately with a small query
+// Unique languages – fetched separately with a small query
 let uniqueLanguages: string[] = [];
 try {
 	const langRows = await fetchAllRecords('repos', 'language', 'language', true, 5000);
@@ -60,11 +69,94 @@ try {
 } catch { /* non-fatal */ }
 ---
 
-<Layout title="Repo Wave Dashboard | Open Source Finder" description="Browse top open-source repositories and discover beginner-friendly issues to contribute to today.">
-	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<Layout title=”Find Your First Open Source Issue | Repo Wave - Beginner Friendly Guide” description=”Discover beginner-friendly open-source issues and learn how to contribute. Browse 5000+ repositories with curated 'good first issues' for developers of all levels.”>
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+		<!-- Hero Section with Value Proposition -->
+		<section class="py-12 sm:py-16 lg:py-20 border-b border-green-200 dark:border-green-900/30">
+			<div class="text-center mb-12">
+				<h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4">
+					Find Your First <span class="text-green-600 dark:text-green-400">Open Source Issue</span>
+				</h1>
+				<p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8">
+					Discover beginner-friendly issues and start contributing to open source today. Learn by doing with real projects.
+				</p>
+
+				<!-- Social Proof Stats -->
+				<div class="grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto mb-10">
+					<div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-4 border border-green-200 dark:border-green-800">
+						<div class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{repoCount.toLocaleString()}</div>
+						<div class="text-sm text-gray-600 dark:text-gray-400">Repositories</div>
+					</div>
+					<div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-4 border border-green-200 dark:border-green-800">
+						<div class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{issueCount.toLocaleString()}</div>
+						<div class="text-sm text-gray-600 dark:text-gray-400">Issues Indexed</div>
+					</div>
+					<div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-4 border border-green-200 dark:border-green-800">
+						<div class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{uniqueLanguages.length}</div>
+						<div class="text-sm text-gray-600 dark:text-gray-400">Languages</div>
+					</div>
+				</div>
+
+				<!-- CTA Buttons -->
+				<div class="flex flex-col sm:flex-row gap-4 justify-center">
+					<a href="/issues" class="inline-flex items-center justify-center px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors shadow-sm">
+						<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+						</svg>
+						Discover Issues Now
+					</a>
+					<a href="/guide" class="inline-flex items-center justify-center px-8 py-3 border-2 border-green-600 text-green-600 dark:text-green-400 dark:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 font-semibold rounded-lg transition-colors">
+						<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5h.01M12 12H9m3 0h3"/>
+						</svg>
+						Learn How to Contribute
+					</a>
+				</div>
+			</div>
+
+			<!-- Key Benefits Section -->
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16">
+				<div class="text-center">
+					<div class="flex justify-center mb-4">
+						<div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800">
+							<svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+							</svg>
+						</div>
+					</div>
+					<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Curated for Beginners</h3>
+					<p class="text-gray-600 dark:text-gray-400">Every issue is labeled as "good first issue" or "beginner-friendly" by maintainers.</p>
+				</div>
+
+				<div class="text-center">
+					<div class="flex justify-center mb-4">
+						<div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800">
+							<svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+							</svg>
+						</div>
+					</div>
+					<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Smart Filtering</h3>
+					<p class="text-gray-600 dark:text-gray-400">Filter by language, difficulty, and project type to find issues that match your skills.</p>
+				</div>
+
+				<div class="text-center">
+					<div class="flex justify-center mb-4">
+						<div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800">
+							<svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+							</svg>
+						</div>
+					</div>
+					<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Track Your Growth</h3>
+					<p class="text-gray-600 dark:text-gray-400">Earn points for contributions and build your public developer profile.</p>
+				</div>
+			</div>
+		</section>
 
 		{fetchFailed && (
-			<div class="flex items-start gap-3 bg-amber-50 border border-amber-300 text-amber-800 px-5 py-4 rounded-xl mb-8 shadow-sm">
+			<div class="flex items-start gap-3 bg-amber-50 border border-amber-300 text-amber-800 px-5 py-4 rounded-xl my-8 shadow-sm">
 				<svg class="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
 					<line x1="12" y1="9" x2="12" y2="13"/>
@@ -76,6 +168,8 @@ try {
 				</div>
 			</div>
 		)}
+
+		<div class="py-10">
 
 		<!-- Main Layout with Sidebar and Content -->
 		<div class="flex flex-col md:flex-row gap-8">

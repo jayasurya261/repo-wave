@@ -1,5 +1,5 @@
----
-export const prerender = true;
+﻿---
+export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
@@ -22,7 +22,7 @@ try {
 	fetchFailed = true;
 }
 
-// Unique languages for sidebar — lightweight distinct query
+// Unique languages for sidebar â€” lightweight distinct query
 let uniqueLanguages: string[] = [];
 try {
 	const langRows = await fetchAllRecords('repos', 'language', 'language', true, 5000);
@@ -42,7 +42,7 @@ try {
 } catch { /* non-fatal */ }
 ---
 
-<Layout title="All Issues | Open Source Finder" description="Browse all beginner-friendly open-source issues to kickstart your contributions.">
+<Layout title="Beginner-Friendly Issues - Find Your First Open Source Issue | Repo Wave" description="Browse thousands of beginner-friendly open-source issues. Find good-first-issues, help-wanted tags, and start your open-source journey today. Filter by language and difficulty.">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
 		{fetchFailed && (

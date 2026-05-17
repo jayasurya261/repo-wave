@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import Analytics from '@vercel/analytics/astro';
@@ -39,6 +40,7 @@ const websiteJsonLd = JSON.stringify({
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6117433075666296" crossorigin="anonymous"></script>
+		<ClientRouter />
 		<title>{title}</title>
 		<meta name="description" content={description} />
 		<link rel="canonical" href={canonicalURL} />
@@ -68,13 +70,17 @@ const websiteJsonLd = JSON.stringify({
 		{jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
 		<!-- Dark-mode: apply class before first paint to avoid flash -->
 		<script is:inline>
-			(function(){
+			function applyStoredTheme() {
 				var saved = localStorage.getItem('theme');
 				var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 				if (saved === 'dark' || (!saved && prefersDark)) {
 					document.documentElement.classList.add('dark');
+				} else {
+					document.documentElement.classList.remove('dark');
 				}
-			})();
+			}
+			applyStoredTheme();
+			document.addEventListener('astro:page-load', applyStoredTheme);
 		</script>
 	</head>
 	<body class="bg-gray-50 dark:bg-gray-950 flex flex-col min-h-screen transition-colors duration-200">

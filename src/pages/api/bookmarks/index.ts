@@ -1,4 +1,4 @@
-import type { APIRoute } from "astro";
+﻿import type { APIRoute } from "astro";
 import { auth } from "../../../lib/auth";
 import { supabase } from "../../../lib/supabase";
 
@@ -40,12 +40,12 @@ export const POST: APIRoute = async ({ request }) => {
         // 2. Check if the bookmark already exists
         const { data: existingBookmark, error: fetchError } = await supabase
             .from(tableName)
-            .select('*')
+            .select('*', { count: 'exact' })
             .eq('user_id', userId)
             .eq(idColumn, targetId)
-            .single();
+            .limit(1);
 
-        if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = strictly one row expected but not found (meaning it doesn't exist)
+        if (fetchError) {
             console.error("Error fetching bookmark:", fetchError);
             return new Response(JSON.stringify({ error: "Database error checking bookmark" }), {
                 status: 500,
@@ -54,7 +54,7 @@ export const POST: APIRoute = async ({ request }) => {
         }
 
         // 3. Toggle Bookmark
-        if (existingBookmark) {
+        if (existingBookmark && existingBookmark.length > 0) {
             // It exists -> Remove Bookmark
             const { error: deleteError } = await supabase
                 .from(tableName)
