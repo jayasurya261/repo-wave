@@ -6,64 +6,7 @@
  * with the current params and renders only the returned page of items.
  */
 
-const isDashboard = window.location.pathname === '/' || window.location.pathname === '/index.html';
-const isReposPage = window.location.pathname.includes('/repositories');
-const isIssuesPage = window.location.pathname.includes('/issues');
-
-const searchInput = document.getElementById('searchInput');
-const paginationContainer = document.getElementById('paginationContainer');
-const repoListEl = document.getElementById('repoList');
-const issueListEl = document.getElementById('issueList');
-const repoCountEl = document.getElementById('repoCount');
-const issueCountEl = document.getElementById('issueCount');
-const noReposMsg = document.getElementById('noReposMsg');
-const noIssuesMsg = document.getElementById('noIssuesMsg');
-
-// Dashboard "show more" buttons still exist but now trigger real API calls
-const showMoreReposBtn = document.getElementById('showMoreReposBtn');
-const showMoreIssuesBtn = document.getElementById('showMoreIssuesBtn');
-
-let currentPage = 1;
-let dashboardIssuesPage = 1;
-let dashboardReposPage = 1;
-let debounceTimer = null;
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-function getFilters() {
-    const searchTerm = searchInput ? searchInput.value.trim() : '';
-    const langEl = document.querySelector('input[name="language"]:checked');
-    const diffEl = document.querySelector('input[name="difficulty"]:checked');
-    return {
-        q: searchTerm,
-        lang: langEl ? langEl.value : 'all',
-        difficulty: diffEl ? diffEl.value : 'all',
-    };
-}
-
-function buildQuery(base, page, filters) {
-    const u = new URL(base, window.location.origin);
-    u.searchParams.set('page', String(page));
-    if (filters.q) u.searchParams.set('q', filters.q);
-    if (filters.lang !== 'all') u.searchParams.set('lang', filters.lang);
-    if (filters.difficulty !== 'all') u.searchParams.set('difficulty', filters.difficulty);
-    return u.toString();
-}
-
-function setLoading(container, loading) {
-    if (!container) return;
-    if (loading) {
-        container.innerHTML = `
-      <div class="py-10 flex justify-center">
-        <svg class="animate-spin h-8 w-8 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-      </div>`;
-    }
-}
-
-// ── Card renderers ─────────────────────────────────────────────────────────
+// ── Pure utility functions (no DOM deps — safe outside init) ─────────────────
 
 function diffLabel(score) {
     if (score == null) return null;
@@ -150,71 +93,17 @@ function escHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
-// ── Pagination ─────────────────────────────────────────────────────────────
-
-function renderPagination(total, pageSize, page, onNavigate) {
-    if (!paginationContainer) return;
-    paginationContainer.innerHTML = '';
-    const totalPages = Math.ceil(total / pageSize);
-    if (totalPages <= 1) return;
-
-    const nav = document.createElement('nav');
-    nav.className = 'flex flex-wrap items-center justify-center gap-2 mt-8';
-
-    const btn = (label, targetPage, active, disabled) => {
-        const el = document.createElement('button');
-        el.innerHTML = label;
-        el.className = `px-3 py-1 rounded-md text-sm font-medium border transition-colors ${active
-            ? 'bg-indigo-600 text-white border-indigo-600'
-            : disabled
-                ? 'text-gray-400 bg-gray-100 border-gray-200 cursor-not-allowed'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-            }`;
-        if (disabled) {
-            el.disabled = true;
-        } else {
-            el.setAttribute('aria-label', typeof targetPage === 'number' ? `Page ${targetPage}` : label);
-            el.onclick = () => { onNavigate(targetPage); window.scrollTo(0, 0); };
-        }
-        return el;
-    };
-
-    nav.appendChild(btn('&laquo; Prev', page - 1, false, page === 1));
-
-    let start = Math.max(1, page - 2);
-    let end = Math.min(totalPages, page + 2);
-    if (page <= 3) end = Math.min(totalPages, 5);
-    if (page >= totalPages - 2) start = Math.max(1, totalPages - 4);
-
-    if (start > 1) {
-        nav.appendChild(btn('1', 1, false, false));
-        if (start > 2) {
-            const ellipsis = document.createElement('span');
-            ellipsis.textContent = '…';
-            ellipsis.className = 'px-3 py-1 text-gray-500';
-            nav.appendChild(ellipsis);
-        }
+function buildQuery(base, page, filters) {
+    const u = new URL(base, window.location.origin);
+    u.searchParams.set('page', String(page));
+    if (filters.q) u.searchParams.set('q', filters.q);
+    if (filters.lang !== 'all') u.searchParams.set('lang', filters.lang);
+    if (filters.difficulty !== 'all') u.searchParams.set('difficulty', filters.difficulty);
+    if (filters.sort && filters.sort !== 'popular' && filters.sort !== 'recent') {
+        u.searchParams.set('sort', filters.sort);
     }
-
-    for (let i = start; i <= end; i++) {
-        nav.appendChild(btn(String(i), i, i === page, false));
-    }
-
-    if (end < totalPages) {
-        if (end < totalPages - 1) {
-            const ellipsis = document.createElement('span');
-            ellipsis.textContent = '…';
-            ellipsis.className = 'px-3 py-1 text-gray-500';
-            nav.appendChild(ellipsis);
-        }
-        nav.appendChild(btn(String(totalPages), totalPages, false, false));
-    }
-
-    nav.appendChild(btn('Next &raquo;', page + 1, false, page === totalPages));
-    paginationContainer.appendChild(nav);
+    return u.toString();
 }
-
-// ── Fetch functions ────────────────────────────────────────────────────────
 
 async function fetchIssues(page, filters) {
     const res = await fetch(buildQuery('/api/issues', page, filters));
@@ -228,146 +117,440 @@ async function fetchRepos(page, filters) {
     return res.json();
 }
 
-// ── Page-specific renderers ────────────────────────────────────────────────
+// ── Initialization function (runs on page load and after soft nav) ──────────────
 
-async function refreshIssues(page, filters) {
-    if (!issueListEl) return;
-    setLoading(issueListEl, true);
-    try {
-        const { items, total, pageSize } = await fetchIssues(page, filters);
-        if (issueCountEl) issueCountEl.textContent = String(total);
-        if (items.length === 0) {
-            issueListEl.innerHTML = '';
-            if (noIssuesMsg) noIssuesMsg.style.display = 'block';
+function init() {
+    // Page detection
+    const isDashboard = window.location.pathname === '/' || window.location.pathname === '/index.html';
+    const isReposPage = window.location.pathname.includes('/repositories');
+    const isIssuesPage = window.location.pathname.includes('/issues');
+
+    // DOM element references (re-queried on each navigation)
+    const searchInput = document.getElementById('searchInput');
+    const paginationContainer = document.getElementById('paginationContainer');
+    const repoListEl = document.getElementById('repoList');
+    const issueListEl = document.getElementById('issueList');
+    const repoCountEl = document.getElementById('repoCount');
+    const issueCountEl = document.getElementById('issueCount');
+    const noReposMsg = document.getElementById('noReposMsg');
+    const noIssuesMsg = document.getElementById('noIssuesMsg');
+    const showMoreReposBtn = document.getElementById('showMoreReposBtn');
+    const showMoreIssuesBtn = document.getElementById('showMoreIssuesBtn');
+    const saveSearchBtn = document.getElementById('saveSearchBtn');
+
+    // State variables (reset on each navigation)
+    let currentPage = 1;
+    let dashboardIssuesPage = 1;
+    let dashboardReposPage = 1;
+    let debounceTimer = null;
+
+    // Helper functions
+    function getFilters() {
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        const langEl = document.querySelector('input[name="language"]:checked');
+        const diffEl = document.querySelector('input[name="difficulty"]:checked');
+
+        let sort = 'popular';
+        const activeSortBtn = document.querySelector('[data-sort][data-active="true"]');
+        if (activeSortBtn) {
+            sort = activeSortBtn.getAttribute('data-sort');
         } else {
-            if (noIssuesMsg) noIssuesMsg.style.display = 'none';
-            issueListEl.innerHTML = items.map(renderIssueCard).join('');
+            const sortContainer = document.querySelector('[data-active-sort]');
+            if (sortContainer) {
+                sort = sortContainer.getAttribute('data-active-sort');
+            }
         }
-        if (!isDashboard) {
-            renderPagination(total, pageSize, page, (p) => { currentPage = p; refreshIssues(p, getFilters()); });
-        } else if (showMoreIssuesBtn) {
-            showMoreIssuesBtn.style.display = total > page * pageSize ? 'inline-flex' : 'none';
-        }
-    } catch {
-        issueListEl.innerHTML = '<p class="text-gray-500 p-4">Could not load issues. Please try again.</p>';
+
+        return {
+            q: searchTerm,
+            lang: langEl ? langEl.value : 'all',
+            difficulty: diffEl ? diffEl.value : 'all',
+            sort: sort,
+        };
     }
-}
 
-async function refreshRepos(page, filters) {
-    if (!repoListEl) return;
-    setLoading(repoListEl, true);
-    try {
-        const { items, total, pageSize } = await fetchRepos(page, filters);
-        if (repoCountEl) repoCountEl.textContent = String(total);
-        if (items.length === 0) {
-            repoListEl.innerHTML = '';
-            if (noReposMsg) noReposMsg.style.display = 'block';
-        } else {
-            if (noReposMsg) noReposMsg.style.display = 'none';
-            repoListEl.innerHTML = items.map(renderRepoCard).join('');
+    function setLoading(container, loading) {
+        if (!container) return;
+        if (loading) {
+            container.innerHTML = `
+      <div class="py-10 flex justify-center">
+        <svg class="animate-spin h-8 w-8 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>`;
         }
-        if (!isDashboard) {
-            renderPagination(total, pageSize, page, (p) => { currentPage = p; refreshRepos(p, getFilters()); });
-        } else if (showMoreReposBtn) {
-            showMoreReposBtn.style.display = total > page * pageSize ? 'inline-flex' : 'none';
+    }
+
+    // Saved searches
+    async function loadSavedSearches() {
+        const container = document.getElementById('savedSearchesContainer');
+        const list = document.getElementById('savedSearchesList');
+        if (!container || !list) return;
+
+        try {
+            const res = await fetch('/api/saved-searches');
+            if (!res.ok) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            const { searches } = await res.json();
+            if (!searches || searches.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            list.innerHTML = searches.map(search => `
+				<div class="flex items-center justify-between gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+					<button
+						class="flex-1 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors truncate"
+						data-search-id="${search.id}"
+						data-search-filters='${JSON.stringify(search.filters).replace(/'/g, "&apos;")}'
+						onclick="applySavedSearch(this)">
+						${escHtml(search.name)}
+					</button>
+					<button
+						class="flex-shrink-0 text-red-500 hover:text-red-700 transition-colors p-1"
+						title="Delete"
+						onclick="deleteSavedSearch('${search.id}', event)">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3H4v2h16V7h-3.5z"/>
+						</svg>
+					</button>
+				</div>
+			`).join('');
+        } catch (err) {
+            console.error('Error loading saved searches:', err);
+            container.classList.add('hidden');
         }
-    } catch {
-        repoListEl.innerHTML = '<p class="text-gray-500 p-4">Could not load repositories. Please try again.</p>';
     }
-}
 
-// ── Main refresh orchestrator ──────────────────────────────────────────────
+    // Global functions for saved searches
+    window.applySavedSearch = function(btn) {
+        const filters = JSON.parse(btn.getAttribute('data-search-filters'));
 
-function refresh(resetPage = true) {
-    if (resetPage) { currentPage = 1; dashboardIssuesPage = 1; dashboardReposPage = 1; }
-    const filters = getFilters();
-    if (isDashboard) {
-        refreshIssues(dashboardIssuesPage, filters);
-        refreshRepos(dashboardReposPage, filters);
-    } else if (isIssuesPage) {
-        refreshIssues(currentPage, filters);
-    } else if (isReposPage) {
-        refreshRepos(currentPage, filters);
-    }
-}
+        const langRadios = document.querySelectorAll('input[name="language"]');
+        langRadios.forEach(r => r.checked = false);
+        const langRadio = document.querySelector(`input[name="language"][value="${filters.lang || 'all'}"]`);
+        if (langRadio) langRadio.checked = true;
 
-// ── Event listeners ────────────────────────────────────────────────────────
+        const diffRadios = document.querySelectorAll('input[name="difficulty"]');
+        diffRadios.forEach(r => r.checked = false);
+        const diffRadio = document.querySelector(`input[name="difficulty"][value="${filters.difficulty || 'all'}"]`);
+        if (diffRadio) diffRadio.checked = true;
 
-if (searchInput) {
-    searchInput.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => refresh(true), 300);
-    });
-}
+        const searchInputEl = document.getElementById('searchInput');
+        if (searchInputEl) {
+            searchInputEl.value = filters.q || '';
+        }
 
-document.querySelectorAll('input[name="language"]').forEach(r =>
-    r.addEventListener('change', () => refresh(true))
-);
-document.querySelectorAll('input[name="difficulty"]').forEach(r =>
-    r.addEventListener('change', () => refresh(true))
-);
+        if (filters.sort) {
+            const sortBtn = document.querySelector(`[data-sort="${filters.sort}"]`);
+            if (sortBtn) {
+                document.querySelectorAll('[data-sort]').forEach(b => {
+                    b.setAttribute('data-active', 'false');
+                    b.classList.remove('bg-green-600', 'text-white', 'border-green-600');
+                    b.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
+                });
+                sortBtn.setAttribute('data-active', 'true');
+                sortBtn.classList.add('bg-green-600', 'text-white', 'border-green-600');
+                sortBtn.classList.remove('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
+            }
+        }
 
-if (showMoreIssuesBtn) {
-    showMoreIssuesBtn.addEventListener('click', () => {
-        dashboardIssuesPage++;
-        // Append mode for dashboard "show more"
+        refresh(true);
+    };
+
+    window.deleteSavedSearch = async function(searchId, event) {
+        event.stopPropagation();
+        if (!confirm('Delete this saved search?')) return;
+
+        try {
+            const res = await fetch(`/api/saved-searches?id=${searchId}`, { method: 'DELETE' });
+            if (res.ok) {
+                loadSavedSearches();
+            } else {
+                alert('Failed to delete saved search');
+            }
+        } catch (err) {
+            console.error('Error deleting saved search:', err);
+            alert('Error deleting saved search');
+        }
+    };
+
+    window.saveCurrentSearch = async function() {
         const filters = getFilters();
-        fetchIssues(dashboardIssuesPage, filters).then(({ items, total, pageSize }) => {
-            issueListEl.insertAdjacentHTML('beforeend', items.map(renderIssueCard).join(''));
-            if (showMoreIssuesBtn) showMoreIssuesBtn.style.display = total > dashboardIssuesPage * pageSize ? 'inline-flex' : 'none';
+        const name = prompt('Name this search:', `${filters.lang !== 'all' ? filters.lang + ' ' : ''}${filters.q || 'My Search'}`);
+        if (!name) return;
+
+        try {
+            const res = await fetch('/api/saved-searches', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, filters }),
+            });
+
+            if (res.status === 401) {
+                window.showAuthToast();
+                return;
+            }
+
+            if (!res.ok) {
+                const err = await res.json();
+                alert(`Error: ${err.error || 'Failed to save'}`);
+                return;
+            }
+
+            alert('Search saved!');
+            loadSavedSearches();
+        } catch (err) {
+            console.error('Error saving search:', err);
+            alert('Error saving search');
+        }
+    };
+
+    // Pagination
+    function renderPagination(total, pageSize, page, onNavigate) {
+        if (!paginationContainer) return;
+        paginationContainer.innerHTML = '';
+        const totalPages = Math.ceil(total / pageSize);
+        if (totalPages <= 1) return;
+
+        const nav = document.createElement('nav');
+        nav.className = 'flex flex-wrap items-center justify-center gap-2 mt-8';
+
+        const btn = (label, targetPage, active, disabled) => {
+            const el = document.createElement('button');
+            el.innerHTML = label;
+            el.className = `px-3 py-1 rounded-md text-sm font-medium border transition-colors ${active
+                ? 'bg-indigo-600 text-white border-indigo-600'
+                : disabled
+                    ? 'text-gray-400 bg-gray-100 border-gray-200 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`;
+            if (disabled) {
+                el.disabled = true;
+            } else {
+                el.setAttribute('aria-label', typeof targetPage === 'number' ? `Page ${targetPage}` : label);
+                el.onclick = () => { onNavigate(targetPage); window.scrollTo(0, 0); };
+            }
+            return el;
+        };
+
+        nav.appendChild(btn('&laquo; Prev', page - 1, false, page === 1));
+
+        let start = Math.max(1, page - 2);
+        let end = Math.min(totalPages, page + 2);
+        if (page <= 3) end = Math.min(totalPages, 5);
+        if (page >= totalPages - 2) start = Math.max(1, totalPages - 4);
+
+        if (start > 1) {
+            nav.appendChild(btn('1', 1, false, false));
+            if (start > 2) {
+                const ellipsis = document.createElement('span');
+                ellipsis.textContent = '…';
+                ellipsis.className = 'px-3 py-1 text-gray-500';
+                nav.appendChild(ellipsis);
+            }
+        }
+
+        for (let i = start; i <= end; i++) {
+            nav.appendChild(btn(String(i), i, i === page, false));
+        }
+
+        if (end < totalPages) {
+            if (end < totalPages - 1) {
+                const ellipsis = document.createElement('span');
+                ellipsis.textContent = '…';
+                ellipsis.className = 'px-3 py-1 text-gray-500';
+                nav.appendChild(ellipsis);
+            }
+            nav.appendChild(btn(String(totalPages), totalPages, false, false));
+        }
+
+        nav.appendChild(btn('Next &raquo;', page + 1, false, page === totalPages));
+        paginationContainer.appendChild(nav);
+    }
+
+    // Page-specific renderers
+    async function refreshIssues(page, filters) {
+        if (!issueListEl) return;
+        setLoading(issueListEl, true);
+        try {
+            const { items, total, pageSize } = await fetchIssues(page, filters);
+            if (issueCountEl) issueCountEl.textContent = String(total);
+            if (items.length === 0) {
+                issueListEl.innerHTML = '';
+                if (noIssuesMsg) noIssuesMsg.style.display = 'block';
+            } else {
+                if (noIssuesMsg) noIssuesMsg.style.display = 'none';
+                issueListEl.innerHTML = items.map(renderIssueCard).join('');
+            }
+            if (!isDashboard) {
+                renderPagination(total, pageSize, page, (p) => { currentPage = p; refreshIssues(p, getFilters()); });
+            } else if (showMoreIssuesBtn) {
+                showMoreIssuesBtn.style.display = total > page * pageSize ? 'inline-flex' : 'none';
+            }
+        } catch {
+            issueListEl.innerHTML = '<p class="text-gray-500 p-4">Could not load issues. Please try again.</p>';
+        }
+    }
+
+    async function refreshRepos(page, filters) {
+        if (!repoListEl) return;
+        setLoading(repoListEl, true);
+        try {
+            const { items, total, pageSize } = await fetchRepos(page, filters);
+            if (repoCountEl) repoCountEl.textContent = String(total);
+            if (items.length === 0) {
+                repoListEl.innerHTML = '';
+                if (noReposMsg) noReposMsg.style.display = 'block';
+            } else {
+                if (noReposMsg) noReposMsg.style.display = 'none';
+                repoListEl.innerHTML = items.map(renderRepoCard).join('');
+            }
+            if (!isDashboard) {
+                renderPagination(total, pageSize, page, (p) => { currentPage = p; refreshRepos(p, getFilters()); });
+            } else if (showMoreReposBtn) {
+                showMoreReposBtn.style.display = total > page * pageSize ? 'inline-flex' : 'none';
+            }
+        } catch {
+            repoListEl.innerHTML = '<p class="text-gray-500 p-4">Could not load repositories. Please try again.</p>';
+        }
+    }
+
+    function refresh(resetPage = true) {
+        if (resetPage) { currentPage = 1; dashboardIssuesPage = 1; dashboardReposPage = 1; }
+        const filters = getFilters();
+        if (isDashboard) {
+            refreshIssues(dashboardIssuesPage, filters);
+            refreshRepos(dashboardReposPage, filters);
+        } else if (isIssuesPage) {
+            refreshIssues(currentPage, filters);
+        } else if (isReposPage) {
+            refreshRepos(currentPage, filters);
+        }
+    }
+
+    // Event listeners (attached/detached on each navigation)
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => refresh(true), 300);
+        });
+    }
+
+    document.querySelectorAll('input[name="language"]').forEach(r =>
+        r.addEventListener('change', () => refresh(true))
+    );
+    document.querySelectorAll('input[name="difficulty"]').forEach(r =>
+        r.addEventListener('change', () => refresh(true))
+    );
+
+    document.querySelectorAll('[data-sort]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-sort]').forEach(b => {
+                b.setAttribute('data-active', b === btn ? 'true' : 'false');
+                if (b === btn) {
+                    b.classList.add('bg-green-600', 'text-white', 'border-green-600');
+                    b.classList.remove('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
+                } else {
+                    b.classList.remove('bg-green-600', 'text-white', 'border-green-600');
+                    b.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
+                }
+            });
+            refresh(true);
         });
     });
-}
 
-if (showMoreReposBtn) {
-    showMoreReposBtn.addEventListener('click', () => {
-        dashboardReposPage++;
-        const filters = getFilters();
-        fetchRepos(dashboardReposPage, filters).then(({ items, total, pageSize }) => {
-            repoListEl.insertAdjacentHTML('beforeend', items.map(renderRepoCard).join(''));
-            if (showMoreReposBtn) showMoreReposBtn.style.display = total > dashboardReposPage * pageSize ? 'inline-flex' : 'none';
+    if (saveSearchBtn) {
+        saveSearchBtn.addEventListener('click', window.saveCurrentSearch);
+    }
+
+    if (showMoreIssuesBtn) {
+        showMoreIssuesBtn.addEventListener('click', () => {
+            dashboardIssuesPage++;
+            const filters = getFilters();
+            fetchIssues(dashboardIssuesPage, filters).then(({ items, total, pageSize }) => {
+                issueListEl.insertAdjacentHTML('beforeend', items.map(renderIssueCard).join(''));
+                if (showMoreIssuesBtn) showMoreIssuesBtn.style.display = total > dashboardIssuesPage * pageSize ? 'inline-flex' : 'none';
+            });
         });
-    });
-}
+    }
 
-// ── Initial load ───────────────────────────────────────────────────────────
-// Strategy:
-// 1. Fetch the real total from the API to set count badges & Show More visibility.
-// 2. If the list is already server-rendered (≥1 item), preserve it — don't re-render.
-// 3. If empty (Supabase failed at build time), do a full render.
-async function initCounts() {
-    const filters = getFilters();
-    if (isDashboard || isIssuesPage) {
-        if (issueListEl) {
-            try {
-                const { total, pageSize } = await fetchIssues(1, filters);
-                if (issueCountEl) issueCountEl.textContent = String(total);
-                // If list was empty, do a full render; otherwise just update Show More
+    if (showMoreReposBtn) {
+        showMoreReposBtn.addEventListener('click', () => {
+            dashboardReposPage++;
+            const filters = getFilters();
+            fetchRepos(dashboardReposPage, filters).then(({ items, total, pageSize }) => {
+                repoListEl.insertAdjacentHTML('beforeend', items.map(renderRepoCard).join(''));
+                if (showMoreReposBtn) showMoreReposBtn.style.display = total > dashboardReposPage * pageSize ? 'inline-flex' : 'none';
+            });
+        });
+    }
+
+    // Initial load
+    async function initCounts() {
+        const filters = getFilters();
+
+        if (isDashboard) {
+            const [issueResult, repoResult] = await Promise.all([
+                issueListEl ? fetchIssues(1, filters).catch(() => null) : Promise.resolve(null),
+                repoListEl ? fetchRepos(1, filters).catch(() => null) : Promise.resolve(null),
+            ]);
+
+            if (issueResult && issueCountEl) {
+                issueCountEl.textContent = String(issueResult.total);
                 if (issueListEl.children.length === 0) {
                     await refreshIssues(1, filters);
-                } else if (isDashboard && showMoreIssuesBtn) {
-                    showMoreIssuesBtn.style.display = total > pageSize ? 'inline-flex' : 'none';
-                } else if (!isDashboard) {
-                    renderPagination(total, pageSize, 1, (p) => { currentPage = p; refreshIssues(p, getFilters()); });
+                } else if (showMoreIssuesBtn) {
+                    showMoreIssuesBtn.style.display = issueResult.total > issueResult.pageSize ? 'inline-flex' : 'none';
                 }
-            } catch { /* non-fatal — counts stay as server-rendered */ }
-        }
-    }
-    if (isDashboard || isReposPage) {
-        if (repoListEl) {
-            try {
-                const { total, pageSize } = await fetchRepos(1, filters);
-                if (repoCountEl) repoCountEl.textContent = String(total);
+            }
+
+            if (repoResult && repoCountEl) {
+                repoCountEl.textContent = String(repoResult.total);
                 if (repoListEl.children.length === 0) {
                     await refreshRepos(1, filters);
-                } else if (isDashboard && showMoreReposBtn) {
-                    showMoreReposBtn.style.display = total > pageSize ? 'inline-flex' : 'none';
-                } else if (!isDashboard) {
-                    renderPagination(total, pageSize, 1, (p) => { currentPage = p; refreshRepos(p, getFilters()); });
+                } else if (showMoreReposBtn) {
+                    showMoreReposBtn.style.display = repoResult.total > repoResult.pageSize ? 'inline-flex' : 'none';
                 }
-            } catch { /* non-fatal */ }
+            }
+        } else if (isIssuesPage) {
+            if (issueListEl) {
+                try {
+                    const { total, pageSize } = await fetchIssues(1, filters);
+                    if (issueCountEl) issueCountEl.textContent = String(total);
+                    if (issueListEl.children.length === 0) {
+                        await refreshIssues(1, filters);
+                    } else {
+                        renderPagination(total, pageSize, 1, (p) => { currentPage = p; refreshIssues(p, getFilters()); });
+                    }
+                } catch { /* non-fatal */ }
+            }
+        } else if (isReposPage) {
+            if (repoListEl) {
+                try {
+                    const { total, pageSize } = await fetchRepos(1, filters);
+                    if (repoCountEl) repoCountEl.textContent = String(total);
+                    if (repoListEl.children.length === 0) {
+                        await refreshRepos(1, filters);
+                    } else {
+                        renderPagination(total, pageSize, 1, (p) => { currentPage = p; refreshRepos(p, getFilters()); });
+                    }
+                } catch { /* non-fatal */ }
+            }
         }
+    }
+
+    initCounts();
+    if (document.getElementById('savedSearchesList')) {
+        loadSavedSearches();
     }
 }
 
-initCounts();
+// ── Bind to page lifecycle ──────────────────────────────────────────────────────
+
+document.addEventListener('astro:page-load', init);

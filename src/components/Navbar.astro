@@ -8,7 +8,7 @@ const currentPath = pathname === '/' ? '/' : pathname;
             <div class="flex">
                 <div class="flex-shrink-0 flex items-center">
                     <a href="/" class="flex items-center">
-                        <img src="https://res.cloudinary.com/dqudvximt/image/upload/v1771714384/Untitled-1_wxhwey.png" alt="App Logo" class="h-10 md:h-14 w-auto dark:brightness-90">
+                        <img src="https://res.cloudinary.com/dqudvximt/image/upload/v1771714384/Untitled-1_wxhwey.png" alt="App Logo" width="120" height="32" class="h-10 md:h-14 w-auto dark:brightness-90">
                     </a>
                 </div>
                 <div class="hidden sm:ml-6 sm:flex sm:space-x-4 lg:space-x-8">
@@ -357,14 +357,15 @@ const currentPath = pathname === '/' ? '/' : pathname;
     }
 
     checkAuth();
+    document.addEventListener('astro:page-load', checkAuth);
 
     document.getElementById('logout-btn-desktop')?.addEventListener('click', async () => {
         await authClient.signOut();
-        window.location.reload();
+        window.location.href = '/login';
     });
-    
+
     document.getElementById('logout-btn-mobile')?.addEventListener('click', async () => {
         await authClient.signOut();
-        window.location.reload();
+        window.location.href = '/login';
     });
 </script>

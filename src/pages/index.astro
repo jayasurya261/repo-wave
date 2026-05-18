@@ -1,5 +1,6 @@
 ﻿---
 export const prerender = false;
+export const revalidate = 60; // ISR: Revalidate cached page every 60 seconds
 import Layout from '../layouts/Layout.astro';
 import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
@@ -14,33 +15,53 @@ let issues: any[] = [];
 let fetchFailed = false;
 let repoCount = 0;
 let issueCount = 0;
+let uniqueLanguages: string[] = [];
+let lastUpdated: string | null = null;
 
 try {
-	// Fetch only first page of repos for initial render
-	repos = await fetchAllRecords('repos', '*', 'stars', false, PAGE_SIZE);
-	const issuesRaw = await fetchAllRecords('issues', '*, repos(language)', 'created_at', false, PAGE_SIZE);
+	const { supabase } = await import('../lib/supabase');
+
+	// Parallelize all independent queries with Promise.all
+	const [reposResult, issuesResult, repoCountResult, issueCountResult, langResult, latestIssueResult] = await Promise.all([
+		// Fetch initial 20 repos (direct query, not via fetchAllRecords which over-fetches 1000 rows)
+		supabase.from('repos').select('*').order('stars', { ascending: false }).range(0, PAGE_SIZE - 1),
+		// Fetch initial 20 issues with repo language join
+		supabase.from('issues').select('*, repos(language)').order('created_at', { ascending: false }).range(0, PAGE_SIZE - 1),
+		// Get total repo count
+		supabase.from('repos').select('*', { count: 'exact', head: true }),
+		// Get total issue count
+		supabase.from('issues').select('*', { count: 'exact', head: true }),
+		// Get unique languages (single query instead of 5 batch queries)
+		supabase.from('repos').select('language').not('language', 'is', null).order('language'),
+		// Get latest issue for "updated" timestamp
+		supabase.from('issues').select('created_at').order('created_at', { ascending: false }).limit(1).single(),
+	]);
+
+	// Extract data from results
+	repos = reposResult.data ?? [];
+	const issuesRaw = issuesResult.data ?? [];
 	issues = issuesRaw?.map((issue: any) => ({
 		...issue,
 		language: issue.repos?.language || ''
 	})) ?? [];
+	repoCount = repoCountResult.count || 0;
+	issueCount = issueCountResult.count || 0;
 
-	// Get total counts for social proof
-	const { supabase } = await import('../lib/supabase');
-	const { count: rCount } = await supabase.from('repos').select('*', { count: 'exact', head: true });
-	const { count: iCount } = await supabase.from('issues').select('*', { count: 'exact', head: true });
-	repoCount = rCount || 0;
-	issueCount = iCount || 0;
+	// Process languages with deduplication
+	const langRows = langResult.data ?? [];
+	uniqueLanguages = [...new Set(langRows.map((r: any) => r.language).filter(Boolean))].sort() as string[];
+
+	// Extract latest issue timestamp
+	if (latestIssueResult.data?.created_at) {
+		const diff = Date.now() - new Date(latestIssueResult.data.created_at).getTime();
+		const h = Math.floor(diff / 36e5);
+		const d = Math.floor(diff / 864e5);
+		lastUpdated = d >= 1 ? `${d}d ago` : h >= 1 ? `${h}h ago` : 'just now';
+	}
 } catch (err) {
 	console.error('[index] Failed to fetch data from Supabase:', err);
 	fetchFailed = true;
 }
-
-// Unique languages – fetched separately with a small query
-let uniqueLanguages: string[] = [];
-try {
-	const langRows = await fetchAllRecords('repos', 'language', 'language', true, 5000);
-	uniqueLanguages = [...new Set(langRows.map((r: any) => r.language).filter(Boolean))].sort() as string[];
-} catch { /* non-fatal */ }
 
 // Build issuesByRepo map from the already-fetched 20 issues
 const issuesByRepo = new Map<string, any[]>();
@@ -49,24 +70,6 @@ for (const issue of issues) {
 	if (!issuesByRepo.has(key)) issuesByRepo.set(key, []);
 	issuesByRepo.get(key)!.push(issue);
 }
-
-// Data freshness: most recently scraped issue timestamp
-let lastUpdated: string | null = null;
-try {
-	const { supabase } = await import('../lib/supabase');
-	const { data } = await supabase
-		.from('issues')
-		.select('created_at')
-		.order('created_at', { ascending: false })
-		.limit(1)
-		.single();
-	if (data?.created_at) {
-		const diff = Date.now() - new Date(data.created_at).getTime();
-		const h = Math.floor(diff / 36e5);
-		const d = Math.floor(diff / 864e5);
-		lastUpdated = d >= 1 ? `${d}d ago` : h >= 1 ? `${h}h ago` : 'just now';
-	}
-} catch { /* non-fatal */ }
 ---
 
 <Layout title=”Find Your First Open Source Issue | Repo Wave - Beginner Friendly Guide” description=”Discover beginner-friendly open-source issues and learn how to contribute. Browse 5000+ repositories with curated 'good first issues' for developers of all levels.”>

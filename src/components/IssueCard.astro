@@ -23,17 +23,13 @@ const internalIssueUrl = `/issue/${issue.repo_id}/${issueNumber}`;
             <div class="flex items-center gap-1.5 min-w-0">
                 <!-- Bookmark ribbon (save) -->
                 <button type="button" class="issue-bookmark-btn flex-shrink-0 text-gray-400 hover:text-green-500 dark:text-gray-500 dark:hover:text-amber-400 focus:outline-none transition-colors" data-issue-id={`${issue.repo_id}/${issueNumber}`} title="Bookmark Issue">
-                    <svg class="w-4 h-4 bookmark-icon-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
-                    <svg class="w-4 h-4 bookmark-icon-solid hidden text-green-500 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    <svg class="w-4 h-4 bookmark-icon-outline"><use href="#icon-bookmark-outline" /></svg>
+                    <svg class="w-4 h-4 bookmark-icon-solid hidden text-green-500 dark:text-amber-400"><use href="#icon-bookmark-solid" /></svg>
                 </button>
                 <!-- Heart (favourite) -->
                 <button type="button" class="issue-favourite-btn flex-shrink-0 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 focus:outline-none transition-colors" data-issue-id={`${issue.repo_id}/${issueNumber}`} title="Add to Favourites">
-                    <svg class="w-4 h-4 favourite-icon-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                    </svg>
-                    <svg class="w-4 h-4 favourite-icon-solid hidden text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                    </svg>
+                    <svg class="w-4 h-4 favourite-icon-outline"><use href="#icon-heart-outline" /></svg>
+                    <svg class="w-4 h-4 favourite-icon-solid hidden text-red-500 dark:text-red-400"><use href="#icon-heart-solid" /></svg>
                 </button>
                 <a href={internalIssueUrl} class="text-base font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 hover:underline truncate">
                     {issue.title}

@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (!session || !session.user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
         });
     }
 
@@ -31,7 +31,7 @@ export const POST: APIRoute = async ({ request }) => {
         if (!targetId) {
             return new Response(JSON.stringify({ error: "Repo ID or Issue ID is required" }), {
                 status: 400,
-                headers: { "Content-Type": "application/json" }
+                headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
             });
         }
 
@@ -49,7 +49,7 @@ export const POST: APIRoute = async ({ request }) => {
             console.error("Error fetching bookmark:", fetchError);
             return new Response(JSON.stringify({ error: "Database error checking bookmark" }), {
                 status: 500,
-                headers: { "Content-Type": "application/json" }
+                headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
             });
         }
 
@@ -66,7 +66,7 @@ export const POST: APIRoute = async ({ request }) => {
 
             return new Response(JSON.stringify({ message: "Bookmark removed", bookmarked: false }), {
                 status: 200,
-                headers: { "Content-Type": "application/json" }
+                headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
             });
 
         } else {
@@ -79,14 +79,14 @@ export const POST: APIRoute = async ({ request }) => {
 
             return new Response(JSON.stringify({ message: "Bookmark added", bookmarked: true }), {
                 status: 200,
-                headers: { "Content-Type": "application/json" }
+                headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
             });
         }
     } catch (e: any) {
         console.error("Bookmark toggle error:", e);
         return new Response(JSON.stringify({ error: e.message || "Internal server error" }), {
             status: 500,
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
         });
     }
 };
@@ -102,7 +102,7 @@ export const GET: APIRoute = async ({ request }) => {
     if (!session || !session.user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
         });
     }
 
@@ -124,14 +124,14 @@ export const GET: APIRoute = async ({ request }) => {
 
         return new Response(JSON.stringify({ bookmarks: ids }), {
             status: 200,
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
         });
 
     } catch (e: any) {
         console.error("Bookmark fetch error:", e);
         return new Response(JSON.stringify({ error: e.message || "Internal server error" }), {
             status: 500,
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
         });
     }
 };

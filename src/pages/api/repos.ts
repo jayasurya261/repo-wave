@@ -21,14 +21,26 @@ export const GET: APIRoute = async ({ url }) => {
     const lang = params.get('lang') ?? 'all';
     const difficulty = params.get('difficulty') ?? 'all';
     const q = (params.get('q') ?? '').toLowerCase().trim();
+    const sort = params.get('sort') ?? 'popular';
 
     const from = (page - 1) * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
     let query = supabase
         .from('repos')
-        .select('*', { count: 'exact' })
-        .order('stars', { ascending: false });
+        .select('*', { count: 'exact' });
+
+    // Apply sort
+    if (sort === 'beginner') {
+        query = query.order('health_score', { ascending: false });
+    } else if (sort === 'trending') {
+        // Trending: recently added high-star repos (last 7 days)
+        query = query.gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+            .order('stars', { ascending: false });
+    } else {
+        // Default: popular (by stars)
+        query = query.order('stars', { ascending: false });
+    }
 
     if (lang !== 'all') {
         query = query.eq('language', lang);

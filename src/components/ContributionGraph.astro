@@ -47,16 +47,8 @@ const getColorClass = (level: number) => {
     }
 };
 
-const getRandomLevel = () => {
-    return 0;
-};
-
 // Generate data: 53 weeks * 7 days = 371 blocks to fill the grid nicely
 const totalCells = 53 * 7;
-
-const getContributionCount = (level: number) => {
-    return 0;
-};
 
 const formatDate = (date: Date) => {
     const month = date.toLocaleString('default', { month: 'long' });
@@ -84,9 +76,6 @@ const contributionData = Array.from({ length: totalCells }, (_, i) => {
         else if (count === 3) level = 3;
         else if (count === 2) level = 2;
         else if (count === 1) level = 1;
-    } else {
-        level = getRandomLevel();
-        count = getContributionCount(level);
     }
     
     const tooltipText = count === 0 
@@ -201,55 +190,61 @@ const displayTotal = totalRealContributions;
 </div>
 
 <script>
-    const tooltip = document.getElementById('graph-tooltip');
-    const cells = document.querySelectorAll('.contribution-cell');
-    let hideTimeout;
+    function initContributionGraph() {
+        const tooltip = document.getElementById('graph-tooltip');
+        const grid = document.querySelector('.grid');
+        let hideTimeout;
 
-    if (tooltip && cells.length > 0) {
-        cells.forEach(cell => {
-            cell.addEventListener('mouseenter', (e) => {
-                clearTimeout(hideTimeout);
-                const text = cell.getAttribute('data-tooltip');
-                if (text) {
-                    tooltip.textContent = text;
-                    tooltip.style.display = 'block';
-                    
-                    // Position calculations
-                    const rect = cell.getBoundingClientRect();
-                    const tooltipRect = tooltip.getBoundingClientRect();
-                    
-                    // Position above the cell, centered horizontally
-                    let top = rect.top - tooltipRect.height - 8;
-                    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-                    
-                    // Boundary checks
-                    if (top < 0) top = rect.bottom + 8; // Display below if not enough space
-                    if (left < 0) left = 4; // screen left edge padding
-                    if (left + tooltipRect.width > window.innerWidth) {
-                        left = window.innerWidth - tooltipRect.width - 4; // screen right padding
-                    }
-                    
-                    tooltip.style.top = `${top}px`;
-                    tooltip.style.left = `${left}px`;
-                    
-                    // Small delay to allow display block to take effect before opacity transition
-                    setTimeout(() => {
-                        tooltip.style.opacity = '1';
-                    }, 10);
+        if (!tooltip || !grid) return;
+
+        // Event delegation: single listener on the parent grid
+        grid.addEventListener('mouseenter', (e) => {
+            const cell = e.target.closest('.contribution-cell');
+            if (!cell) return;
+
+            clearTimeout(hideTimeout);
+            const text = cell.getAttribute('data-tooltip');
+            if (!text) return;
+
+            tooltip.textContent = text;
+            tooltip.style.display = 'block';
+
+            // Position calculations
+            const rect = cell.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+
+            // Position above the cell, centered horizontally
+            let top = rect.top - tooltipRect.height - 8;
+            let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+            // Boundary checks
+            if (top < 0) top = rect.bottom + 8;
+            if (left < 0) left = 4;
+            if (left + tooltipRect.width > window.innerWidth) {
+                left = window.innerWidth - tooltipRect.width - 4;
+            }
+
+            tooltip.style.top = `${top}px`;
+            tooltip.style.left = `${left}px`;
+
+            setTimeout(() => {
+                tooltip.style.opacity = '1';
+            }, 10);
+        }, true);
+
+        grid.addEventListener('mouseleave', (e) => {
+            const cell = e.target.closest('.contribution-cell');
+            if (!cell) return;
+
+            tooltip.style.opacity = '0';
+            hideTimeout = setTimeout(() => {
+                if (tooltip.style.opacity === '0') {
+                    tooltip.style.display = 'none';
                 }
-            });
+            }, 200);
+        }, true);
 
-            cell.addEventListener('mouseleave', () => {
-                tooltip.style.opacity = '0';
-                hideTimeout = setTimeout(() => {
-                    if (tooltip.style.opacity === '0') {
-                        tooltip.style.display = 'none';
-                    }
-                }, 200); // Matches TW duration-200
-            });
-        });
-        
-        // Hide tooltip if scrolling the container or clicking outside
+        // Hide tooltip if scrolling the container
         const graphContainer = document.querySelector('.overflow-x-auto');
         if (graphContainer) {
             graphContainer.addEventListener('scroll', () => {
@@ -257,12 +252,15 @@ const displayTotal = totalRealContributions;
                 tooltip.style.display = 'none';
             }, { passive: true });
         }
-        
+
         document.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('contribution-cell')) {
+            if (!e.target.closest('.contribution-cell')) {
                 tooltip.style.opacity = '0';
                 tooltip.style.display = 'none';
             }
         });
     }
+
+    initContributionGraph();
+    document.addEventListener('astro:page-load', initContributionGraph);
 </script>

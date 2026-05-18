@@ -11,7 +11,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!session?.user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
-            status: 401, headers: { "Content-Type": "application/json" }
+            status: 401, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
         });
     }
 
@@ -26,7 +26,7 @@ export const POST: APIRoute = async ({ request }) => {
 
         if (!targetId) {
             return new Response(JSON.stringify({ error: "repo_id or issue_id required" }), {
-                status: 400, headers: { "Content-Type": "application/json" }
+                status: 400, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
             });
         }
 
@@ -38,7 +38,7 @@ export const POST: APIRoute = async ({ request }) => {
         if (fetchError && fetchError.code !== 'PGRST116') {
             console.error('[favourites API] fetch error:', fetchError);
             return new Response(JSON.stringify({ error: "Database error", detail: fetchError.message }), {
-                status: 500, headers: { "Content-Type": "application/json" }
+                status: 500, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
             });
         }
 
@@ -47,20 +47,20 @@ export const POST: APIRoute = async ({ request }) => {
                 .eq('user_id', userId).eq(idColumn, targetId);
             if (error) throw error;
             return new Response(JSON.stringify({ message: "Removed from favourites", favourited: false }), {
-                status: 200, headers: { "Content-Type": "application/json" }
+                status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
             });
         } else {
             const { error } = await supabase.from(tableName)
                 .insert([{ user_id: userId, [idColumn]: targetId }]);
             if (error) throw error;
             return new Response(JSON.stringify({ message: "Added to favourites", favourited: true }), {
-                status: 200, headers: { "Content-Type": "application/json" }
+                status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
             });
         }
     } catch (e: any) {
         console.error('[favourites API] caught error:', e);
         return new Response(JSON.stringify({ error: e.message || "Server error" }), {
-            status: 500, headers: { "Content-Type": "application/json" }
+            status: 500, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
         });
     }
 };
@@ -71,7 +71,7 @@ export const GET: APIRoute = async ({ request }) => {
 
     if (!session?.user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
-            status: 401, headers: { "Content-Type": "application/json" }
+            status: 401, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
         });
     }
 
@@ -89,11 +89,11 @@ export const GET: APIRoute = async ({ request }) => {
 
         const ids = data.map(b => (b as any)[idColumn]);
         return new Response(JSON.stringify({ favourites: ids }), {
-            status: 200, headers: { "Content-Type": "application/json" }
+            status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
         });
     } catch (e: any) {
         return new Response(JSON.stringify({ error: e.message || "Server error" }), {
-            status: 500, headers: { "Content-Type": "application/json" }
+            status: 500, headers: { "Content-Type": "application/json", "Cache-Control": "private, no-store" }
         });
     }
 };

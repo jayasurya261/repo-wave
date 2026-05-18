@@ -11,6 +11,7 @@ export const GET: APIRoute = async ({ url }) => {
     const lang = params.get('lang') ?? 'all';
     const difficulty = params.get('difficulty') ?? 'all';
     const q = (params.get('q') ?? '').toLowerCase().trim();
+    const sort = params.get('sort') ?? 'recent';
 
     const from = (page - 1) * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
@@ -18,8 +19,19 @@ export const GET: APIRoute = async ({ url }) => {
     // Start building query
     let query = supabase
         .from('issues')
-        .select('*, repos(language)', { count: 'exact' })
-        .order('created_at', { ascending: false });
+        .select('*, repos(language)', { count: 'exact' });
+
+    // Apply sort
+    if (sort === 'easy') {
+        query = query.order('difficulty_score', { ascending: true });
+    } else if (sort === 'trending') {
+        // Trending: issues created in the last 7 days
+        query = query.gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+            .order('created_at', { ascending: false });
+    } else {
+        // Default: recent
+        query = query.order('created_at', { ascending: false });
+    }
 
     // Language filter â€” join repos table
     if (lang !== 'all') {
