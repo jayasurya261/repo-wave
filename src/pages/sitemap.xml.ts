@@ -61,7 +61,30 @@ export async function GET({ site }: { site: URL }) {
   const repoResults = await Promise.all(repoPromises);
   const allRepos = repoResults.flatMap((res) => res.data || []);
 
-  // 3. Static pages
+  // 3. Language landing pages
+  const { data: langRows } = await supabase
+    .from('repos')
+    .select('language')
+    .not('language', 'is', null);
+
+  const SPECIAL_SLUGS: Record<string, string> = {
+    'C++': 'cpp', 'C#': 'csharp', 'F#': 'fsharp', 'Objective-C': 'objective-c',
+  };
+  function langToSlug(lang: string): string {
+    return SPECIAL_SLUGS[lang] ?? lang.toLowerCase()
+      .replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  const uniqueLangs = [...new Set(langRows?.map((r: any) => r.language).filter(Boolean) ?? [])];
+  const langUrls = uniqueLangs.flatMap((lang: string) => {
+    const slug = langToSlug(lang);
+    return [
+      `<url><loc>${escapeXml(`${baseUrl}/repositories/${slug}`)}</loc><changefreq>daily</changefreq><priority>0.8</priority></url>`,
+      `<url><loc>${escapeXml(`${baseUrl}/issues/${slug}`)}</loc><changefreq>daily</changefreq><priority>0.8</priority></url>`,
+    ];
+  }).join('');
+
+  // 4. Static pages
   const staticPages = [
     '',
     '/issues',
@@ -69,7 +92,16 @@ export async function GET({ site }: { site: URL }) {
     '/about',
     '/contact',
     '/login',
-    '/signup'
+    '/signup',
+    '/guide',
+    '/guide/open-source-beginner-roadmap',
+    '/guide/finding-good-first-issues',
+    '/guide/best-repos-for-beginners',
+    '/guide/github-contribution-guide',
+    '/guide/how-maintainers-review-prs',
+    '/guide/common-git-mistakes',
+    '/blog',
+    '/blog/tips-for-open-source',
   ];
 
   // Helper to escape XML special characters
@@ -108,6 +140,7 @@ export async function GET({ site }: { site: URL }) {
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticUrls}
+${langUrls}
 ${issueUrls}
 ${repoUrls}
 </urlset>`.trim();

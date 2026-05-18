@@ -10,16 +10,16 @@ import Layout from '../../layouts/Layout.astro';
     </a>
 
     <header class="mb-10">
-      <div class="flex items-center gap-3 mb-4 text-sm font-medium text-gray-500">
-        <span class="bg-gray-100 px-2 py-1 rounded text-indigo-700">Part 2</span>
+      <div class="flex items-center gap-3 mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+        <span class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-indigo-700 dark:text-indigo-400">Part 2</span>
         <span>&middot;</span>
         <span>8 min read</span>
       </div>
-      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">GitHub Contribution Guide</h1>
-      <p class="text-xl text-gray-600 leading-relaxed">The step-by-step workflow for getting your code from your laptop into an open-source project.</p>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight mb-6">GitHub Contribution Guide</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">The step-by-step workflow for getting your code from your laptop into an open-source project.</p>
     </header>
 
-    <div class="prose prose-lg prose-indigo text-gray-700 max-w-none">
+    <div class="prose prose-lg prose-indigo dark:prose-invert text-gray-700 dark:text-gray-300 max-w-none">
       
       <h2>1. The Fork and Clone</h2>
       <p>
@@ -55,8 +55,8 @@ git merge upstream/main</code></pre>
       <pre><code>git add .
 git commit -m "fix: updated login button color to blue"</code></pre>
 
-      <div class="bg-blue-50 border-l-4 border-blue-500 p-4 my-6 rounded-r-lg">
-        <p class="text-blue-800 font-medium m-0"><strong>Pro Tip:</strong> Use clear, descriptive commit messages. Many projects use <a href="https://www.conventionalcommits.org/" target="_blank">Conventional Commits</a> (e.g., <code>fix:</code>, <code>feat:</code>, <code>docs:</code>).</p>
+      <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 dark:border-blue-600 p-4 my-6 rounded-r-lg">
+        <p class="text-blue-800 dark:text-blue-300 font-medium m-0"><strong>Pro Tip:</strong> Use clear, descriptive commit messages. Many projects use <a href="https://www.conventionalcommits.org/" target="_blank">Conventional Commits</a> (e.g., <code>fix:</code>, <code>feat:</code>, <code>docs:</code>).</p>
       </div>
 
       <h2>5. Push Your Changes</h2>

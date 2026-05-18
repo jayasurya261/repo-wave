@@ -10,16 +10,16 @@ import Layout from '../../layouts/Layout.astro';
     </a>
 
     <header class="mb-10">
-      <div class="flex items-center gap-3 mb-4 text-sm font-medium text-gray-500">
-        <span class="bg-gray-100 px-2 py-1 rounded text-indigo-700">Part 5</span>
+      <div class="flex items-center gap-3 mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+        <span class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-indigo-700 dark:text-indigo-400">Part 5</span>
         <span>&middot;</span>
         <span>7 min read</span>
       </div>
-      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">Common Git Mistakes & Fixes</h1>
-      <p class="text-xl text-gray-600 leading-relaxed">Don't panic! Git is basically a giant undo button. Here is how to fix the 5 most common mistakes.</p>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight mb-6">Common Git Mistakes & Fixes</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">Don't panic! Git is basically a giant undo button. Here is how to fix the 5 most common mistakes.</p>
     </header>
 
-    <div class="prose prose-lg prose-indigo text-gray-700 max-w-none">
+    <div class="prose prose-lg prose-indigo dark:prose-invert text-gray-700 dark:text-gray-300 max-w-none">
       
       <h2>1. "I committed to the wrong branch!"</h2>
       <p>
@@ -54,8 +54,8 @@ git checkout new-feature</code></pre>
         You tried a new approach, it failed spectacularly, and you just want to revert every file back to exactly how it was 30 minutes ago.
       </p>
       <p><strong>The Fix:</strong> Do a "hard" reset.</p>
-      <div class="bg-red-50 border-l-4 border-red-500 p-4 my-4 rounded-r-lg">
-        <p class="text-red-800 font-medium m-0"><strong>Warning:</strong> A hard reset permanently deletes any uncommitted changes. You cannot get them back.</p>
+      <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-600 p-4 my-4 rounded-r-lg">
+        <p class="text-red-800 dark:text-red-300 font-medium m-0"><strong>Warning:</strong> A hard reset permanently deletes any uncommitted changes. You cannot get them back.</p>
       </div>
       <pre><code>git reset --hard HEAD</code></pre>
 
@@ -74,7 +74,7 @@ const color = "red";
 git commit -m "resolved merge conflict"</code></pre>
 
       <hr class="my-10 border-gray-200" />
-      <p class="text-xl font-bold text-center text-gray-900 mt-12 mb-4">You are ready!</p>
+      <p class="text-xl font-bold text-center text-gray-900 dark:text-gray-100 mt-12 mb-4">You are ready!</p>
       <p class="text-center">Go back to the <a href="/issues" class="text-indigo-600 hover:underline">Issues page</a> and start your open-source journey.</p>
     </div>
   </article>

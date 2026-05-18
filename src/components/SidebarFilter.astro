@@ -1,108 +1,204 @@
 ---
 export interface Props {
 	uniqueLanguages: string[];
+	defaultLanguage?: string;
 }
-const { uniqueLanguages } = Astro.props;
+const { uniqueLanguages, defaultLanguage = '' } = Astro.props;
 ---
 
-<aside class="w-full md:w-64 flex-shrink-0 sticky top-16 md:top-6 z-40 md:bg-transparent md:dark:bg-transparent pb-4 md:pb-0">
-	<details class="group md:block" id="filter-accordion">
-		<!-- Summary visible only on mobile -->
-		<summary class="md:hidden flex items-center justify-between bg-white dark:bg-gray-900 border border-green-500 rounded-xl p-4 shadow-sm font-bold text-gray-900 dark:text-gray-100 cursor-pointer list-none">
-			<div class="flex items-center gap-2">
-				<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-				<span>Filters</span>
+<!-- ── Desktop Sidebar ─────────────────────────────────────────────── -->
+<aside id="desktopSidebar" class="hidden md:flex w-64 shrink-0 flex-col gap-4 sticky top-6 self-start">
+
+	<!-- Language Filter -->
+	<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-green-500 p-5">
+		<h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Language</h3>
+		<div class="relative mb-3">
+			<svg class="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+			</svg>
+			<input id="langSearch" type="text" placeholder="Search languages…" autocomplete="off"
+				class="w-full pl-8 pr-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/40 transition" />
+		</div>
+		<div id="langPillsContainer" class="flex flex-wrap gap-1.5 max-h-52 overflow-y-auto custom-scrollbar pr-0.5">
+			<button data-lang="all" data-active={!defaultLanguage ? 'true' : 'false'} class="lang-pill px-2.5 py-1 rounded-full text-xs font-medium border transition-colors">All</button>
+			{uniqueLanguages.map((lang: string) => (
+				<button data-lang={lang} data-active={lang === defaultLanguage ? 'true' : 'false'} class="lang-pill px-2.5 py-1 rounded-full text-xs font-medium border transition-colors">{lang}</button>
+			))}
+		</div>
+	</div>
+
+	<!-- Difficulty Filter -->
+	<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-green-500 p-5">
+		<h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Difficulty</h3>
+		<div class="grid grid-cols-2 gap-2">
+			<button data-diff="all" data-active="true" class="diff-btn col-span-2 px-3 py-2 rounded-lg text-xs font-semibold border-2 transition-all">Any Difficulty</button>
+			<button data-diff="easy" data-active="false" class="diff-btn px-3 py-2 rounded-lg text-xs font-semibold border-2 transition-all">🟢 Easy</button>
+			<button data-diff="medium" data-active="false" class="diff-btn px-3 py-2 rounded-lg text-xs font-semibold border-2 transition-all">🟡 Medium</button>
+			<button data-diff="hard" data-active="false" class="diff-btn px-3 py-2 rounded-lg text-xs font-semibold border-2 transition-all">🟠 Hard</button>
+			<button data-diff="very-hard" data-active="false" class="diff-btn col-span-2 px-3 py-2 rounded-lg text-xs font-semibold border-2 transition-all">🔴 Very Hard</button>
+		</div>
+	</div>
+
+	<!-- Save Search -->
+	<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-green-500 p-5">
+		<button id="saveSearchBtn" class="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold rounded-lg transition-colors text-sm">
+			Save This Search
+		</button>
+		<div id="savedSearchesContainer" class="hidden mt-4">
+			<h4 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Saved Searches</h4>
+			<div id="savedSearchesList" class="space-y-1.5">
+				<p class="text-xs text-gray-400">Loading…</p>
 			</div>
-			<svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-		</summary>
-
-		<div class="mt-2 md:mt-0 space-y-6 hidden group-open:block md:block absolute md:static left-0 right-0 bg-gray-50 dark:bg-gray-950 md:bg-transparent md:dark:bg-transparent p-2 md:p-0 rounded-xl max-h-[70vh] md:max-h-none overflow-y-auto shadow-lg md:shadow-none border md:border-none border-gray-200 dark:border-gray-700 z-50">
-			<!-- Language Filter -->
-			<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-green-500 p-4 md:p-5">
-				<h3 class="text-base md:text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 md:mb-4">Filter by Language</h3>
-				<div class="space-y-2 max-h-48 md:max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="language" value="all" checked class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">All Languages</span>
-					</label>
-					{uniqueLanguages.map((lang: any) => (
-						<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-							<input type="radio" name="language" value={lang} class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500">
-							<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">{lang}</span>
-						</label>
-					))}
-				</div>
-			</div>
-
-			<!-- Difficulty Filter -->
-			<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-green-500 p-4 md:p-5">
-				<h3 class="text-base md:text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 md:mb-4">Filter by Difficulty</h3>
-				<div class="space-y-2 max-h-48 md:max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="difficulty" value="all" checked class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Any Difficulty">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">Any Difficulty</span>
-					</label>
-					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="difficulty" value="easy" class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Easy Difficulty">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">Easy</span>
-					</label>
-					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="difficulty" value="medium" class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Medium Difficulty">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">Medium</span>
-					</label>
-					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="difficulty" value="hard" class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Hard Difficulty">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">Hard</span>
-					</label>
-					<label class="flex items-center gap-2 md:gap-3 cursor-pointer group/label">
-						<input type="radio" name="difficulty" value="very-hard" class="w-4 h-4 text-green-600 border-gray-300 dark:border-gray-600 focus:ring-indigo-500" aria-label="Filter by Very Hard Difficulty">
-						<span class="text-sm md:text-base text-gray-700 dark:text-gray-300 group-hover/label:text-green-600 dark:group-hover/label:text-green-400 transition-colors">Very Hard</span>
-					</label>
-				</div>
-
-				<!-- Save Search Button -->
-				<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-green-500 p-4 md:p-5">
-					<button id="saveSearchBtn" class="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h6a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"></path></svg>
-						Save This Search
-					</button>
-				</div>
-
-				<!-- Saved Searches -->
-				<div id="savedSearchesContainer" class="hidden bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-green-500 p-4 md:p-5">
-					<h3 class="text-base md:text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 md:mb-4">Saved Searches</h3>
-					<div id="savedSearchesList" class="space-y-2">
-						<p class="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
-					</div>
-				</div>
-			</div>
-		</details>
+		</div>
+	</div>
 </aside>
 
-<style>
-	details > summary::-webkit-details-marker {
-		display: none;
-	}
-</style>
+<!-- ── Hidden radio inputs (source of truth for filter.js) ─────────── -->
+<div class="hidden" aria-hidden="true" id="filterRadios">
+	<input type="radio" name="language" value="all" checked={!defaultLanguage} />
+	{uniqueLanguages.map((lang: string) => (
+		<input type="radio" name="language" value={lang} checked={lang === defaultLanguage} />
+	))}
+	<input type="radio" name="difficulty" value="all" checked />
+	<input type="radio" name="difficulty" value="easy" />
+	<input type="radio" name="difficulty" value="medium" />
+	<input type="radio" name="difficulty" value="hard" />
+	<input type="radio" name="difficulty" value="very-hard" />
+</div>
 
-<script>
-	function handleResize() {
-		const details = document.getElementById('filter-accordion') as HTMLDetailsElement;
-		if (details) {
-			if (window.innerWidth >= 768) {
-				details.setAttribute('open', '');
-			}
-		}
+<!-- ── Mobile FAB Trigger ──────────────────────────────────────────── -->
+<div class="md:hidden fixed bottom-6 right-6 z-50">
+	<button id="openFilterDrawer" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 active:scale-95 text-white font-semibold px-4 py-3 rounded-full shadow-xl transition-all">
+		<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+		</svg>
+		<span>Filters</span>
+		<span id="mobileFilterBadge" class="hidden bg-white text-green-700 text-xs font-bold w-5 h-5 rounded-full items-center justify-center">0</span>
+	</button>
+</div>
+
+<!-- ── Mobile Drawer Overlay ───────────────────────────────────────── -->
+<div id="filterDrawerOverlay" class="md:hidden fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300 opacity-0"></div>
+
+<!-- ── Mobile Bottom Sheet Drawer ─────────────────────────────────── -->
+<div id="filterDrawer" class="md:hidden fixed bottom-0 left-0 right-0 z-50 translate-y-full transition-transform duration-300 bg-white dark:bg-gray-900 rounded-t-2xl shadow-2xl max-h-[85vh] flex flex-col">
+
+	<!-- Drag handle -->
+	<div class="flex justify-center pt-3 pb-1">
+		<div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></div>
+	</div>
+
+	<!-- Header -->
+	<div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-800">
+		<h2 class="text-base font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+			<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+			</svg>
+			Filters
+		</h2>
+		<button id="closeFilterDrawer" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors">
+			<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+		</button>
+	</div>
+
+	<!-- Scrollable body -->
+	<div class="flex-1 overflow-y-auto px-5 py-4 space-y-6">
+
+		<!-- Language -->
+		<div>
+			<h3 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Language</h3>
+			<div class="relative mb-3">
+				<svg class="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+				</svg>
+				<input id="langSearchMobile" type="text" placeholder="Search languages…" autocomplete="off"
+					class="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/40 transition" />
+			</div>
+			<div id="langPillsContainerMobile" class="flex flex-wrap gap-2">
+				<button data-lang="all" data-active={!defaultLanguage ? 'true' : 'false'} class="lang-pill px-3 py-1.5 rounded-full text-sm font-medium border transition-colors">All</button>
+				{uniqueLanguages.map((lang: string) => (
+					<button data-lang={lang} data-active={lang === defaultLanguage ? 'true' : 'false'} class="lang-pill px-3 py-1.5 rounded-full text-sm font-medium border transition-colors">{lang}</button>
+				))}
+			</div>
+		</div>
+
+		<!-- Difficulty -->
+		<div>
+			<h3 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Difficulty</h3>
+			<div class="grid grid-cols-2 gap-2">
+				<button data-diff="all" data-active="true" class="diff-btn col-span-2 px-3 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all">Any Difficulty</button>
+				<button data-diff="easy" data-active="false" class="diff-btn px-3 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all">🟢 Easy</button>
+				<button data-diff="medium" data-active="false" class="diff-btn px-3 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all">🟡 Medium</button>
+				<button data-diff="hard" data-active="false" class="diff-btn px-3 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all">🟠 Hard</button>
+				<button data-diff="very-hard" data-active="false" class="diff-btn col-span-2 px-3 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all">🔴 Very Hard</button>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Footer -->
+	<div class="px-5 py-4 border-t border-gray-100 dark:border-gray-800 flex gap-3 shrink-0">
+		<button id="resetFiltersBtn" class="flex-1 px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm">
+			Reset All
+		</button>
+		<button id="applyFiltersBtn" class="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors text-sm">
+			Apply Filters
+		</button>
+	</div>
+</div>
+
+<style>
+	/* ── Lang pill states ── */
+	.lang-pill[data-active="true"] {
+		background-color: #16a34a;
+		color: #fff;
+		border-color: #16a34a;
 	}
-	
-	window.addEventListener('resize', handleResize);
-	
-	document.addEventListener('astro:page-load', () => {
-		handleResize();
-		const details = document.getElementById('filter-accordion');
-		if(details){
-			details.addEventListener('toggle', (e) => details.classList.add('user-toggled'));
-		}
-	});
-	handleResize();
-</script>
+	.lang-pill[data-active="false"] {
+		background-color: transparent;
+		color: #374151;
+		border-color: #e5e7eb;
+	}
+	.lang-pill[data-active="false"]:hover {
+		border-color: #16a34a;
+		color: #15803d;
+	}
+	:global(.dark) .lang-pill[data-active="false"] {
+		color: #d1d5db;
+		border-color: #374151;
+	}
+	:global(.dark) .lang-pill[data-active="false"]:hover {
+		border-color: #16a34a;
+		color: #4ade80;
+	}
+
+	/* ── Diff button base (inactive) ── */
+	.diff-btn[data-diff="all"][data-active="false"]      { border-color: #d1d5db; color: #6b7280; background: transparent; }
+	.diff-btn[data-diff="easy"][data-active="false"]     { border-color: #bbf7d0; color: #15803d; background: transparent; }
+	.diff-btn[data-diff="medium"][data-active="false"]   { border-color: #fef08a; color: #a16207; background: transparent; }
+	.diff-btn[data-diff="hard"][data-active="false"]     { border-color: #fed7aa; color: #c2410c; background: transparent; }
+	.diff-btn[data-diff="very-hard"][data-active="false"]{ border-color: #fecaca; color: #b91c1c; background: transparent; }
+
+	/* ── Diff button hover (inactive) ── */
+	.diff-btn[data-diff="all"][data-active="false"]:hover      { background: #f3f4f6; }
+	.diff-btn[data-diff="easy"][data-active="false"]:hover     { background: #f0fdf4; }
+	.diff-btn[data-diff="medium"][data-active="false"]:hover   { background: #fefce8; }
+	.diff-btn[data-diff="hard"][data-active="false"]:hover     { background: #fff7ed; }
+	.diff-btn[data-diff="very-hard"][data-active="false"]:hover{ background: #fef2f2; }
+
+	/* ── Diff button active (filled) ── */
+	.diff-btn[data-diff="all"][data-active="true"]      { background: #6b7280; border-color: #6b7280; color: #fff; }
+	.diff-btn[data-diff="easy"][data-active="true"]     { background: #16a34a; border-color: #16a34a; color: #fff; }
+	.diff-btn[data-diff="medium"][data-active="true"]   { background: #ca8a04; border-color: #ca8a04; color: #fff; }
+	.diff-btn[data-diff="hard"][data-active="true"]     { background: #ea580c; border-color: #ea580c; color: #fff; }
+	.diff-btn[data-diff="very-hard"][data-active="true"]{ background: #dc2626; border-color: #dc2626; color: #fff; }
+
+	/* ── Dark mode inactive diff ── */
+	:global(.dark) .diff-btn[data-diff="all"][data-active="false"]      { border-color: #4b5563; color: #9ca3af; }
+	:global(.dark) .diff-btn[data-diff="easy"][data-active="false"]     { border-color: #14532d; color: #4ade80; }
+	:global(.dark) .diff-btn[data-diff="medium"][data-active="false"]   { border-color: #713f12; color: #fbbf24; }
+	:global(.dark) .diff-btn[data-diff="hard"][data-active="false"]     { border-color: #7c2d12; color: #fb923c; }
+	:global(.dark) .diff-btn[data-diff="very-hard"][data-active="false"]{ border-color: #7f1d1d; color: #f87171; }
+
+	details > summary::-webkit-details-marker { display: none; }
+</style>

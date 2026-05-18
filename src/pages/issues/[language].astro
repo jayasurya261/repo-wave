@@ -1,0 +1,184 @@
+---
+export const prerender = true;
+
+import Layout from '../../layouts/Layout.astro';
+import SidebarFilter from '../../components/SidebarFilter.astro';
+import SearchBar from '../../components/SearchBar.astro';
+import IssueCard from '../../components/IssueCard.astro';
+import { supabase } from '../../lib/supabase';
+
+const SPECIAL_SLUGS: Record<string, string> = {
+	'C++': 'cpp',
+	'C#': 'csharp',
+	'F#': 'fsharp',
+	'Objective-C': 'objective-c',
+};
+
+function langToSlug(lang: string): string {
+	return SPECIAL_SLUGS[lang] ?? lang
+		.toLowerCase()
+		.replace(/\s+/g, '-')
+		.replace(/[^a-z0-9-]/g, '')
+		.replace(/-+/g, '-')
+		.replace(/^-|-$/g, '');
+}
+
+export async function getStaticPaths() {
+	const SPECIAL: Record<string, string> = {
+		'C++': 'cpp', 'C#': 'csharp', 'F#': 'fsharp', 'Objective-C': 'objective-c',
+	};
+	function toSlug(lang: string): string {
+		return SPECIAL[lang] ?? lang.toLowerCase()
+			.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
+	}
+
+	const { data: langRows } = await supabase
+		.from('repos')
+		.select('language')
+		.not('language', 'is', null);
+
+	const languages = [
+		...new Set(langRows?.map((r: any) => r.language).filter(Boolean) ?? []),
+	].sort() as string[];
+
+	return languages.map((lang) => ({
+		params: { language: toSlug(lang) },
+		props: { language: lang },
+	}));
+}
+
+interface Props { language: string; }
+const { language } = Astro.props;
+const slug = langToSlug(language);
+const PAGE_SIZE = 20;
+
+// Get repo IDs for this language, then fetch issues for those repos
+const [langReposResult, allLangResult] = await Promise.all([
+	supabase
+		.from('repos')
+		.select('full_name')
+		.eq('language', language)
+		.limit(500),
+	supabase
+		.from('repos')
+		.select('language')
+		.not('language', 'is', null)
+		.order('language'),
+]);
+
+const repoIds = (langReposResult.data ?? []).map((r: any) => r.full_name);
+const uniqueLanguages = [
+	...new Set((allLangResult.data ?? []).map((r: any) => r.language).filter(Boolean)),
+].sort() as string[];
+
+let issues: any[] = [];
+let totalIssues = 0;
+
+if (repoIds.length > 0) {
+	const [issuesResult, countResult] = await Promise.all([
+		supabase
+			.from('issues')
+			.select('*')
+			.in('repo_id', repoIds)
+			.order('created_at', { ascending: false })
+			.range(0, PAGE_SIZE - 1),
+		supabase
+			.from('issues')
+			.select('*', { count: 'exact', head: true })
+			.in('repo_id', repoIds),
+	]);
+	issues = (issuesResult.data ?? []).map((issue: any) => ({ ...issue, language }));
+	totalIssues = countResult.count ?? 0;
+}
+
+const siteUrl = 'https://www.repowave.space';
+const pageTitle = `${language} Open Source Issues for Beginners | Repo Wave`;
+const pageDesc = `Find ${totalIssues.toLocaleString()} beginner-friendly ${language} open source issues. Filter by difficulty, discover good first issues, and make your first ${language} open source contribution today.`;
+
+const jsonLd = JSON.stringify({
+	'@context': 'https://schema.org',
+	'@type': 'BreadcrumbList',
+	itemListElement: [
+		{ '@type': 'ListItem', position: 1, name: 'Issues', item: `${siteUrl}/issues` },
+		{ '@type': 'ListItem', position: 2, name: `${language} Issues`, item: `${siteUrl}/issues/${slug}` },
+	],
+});
+---
+
+<Layout title={pageTitle} description={pageDesc} jsonLd={jsonLd}>
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+		<!-- Breadcrumb -->
+		<nav class="mb-6 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+			<a href="/issues" class="hover:text-green-600 dark:hover:text-green-400 transition-colors">Issues</a>
+			<svg class="w-4 h-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+			</svg>
+			<span class="text-gray-900 dark:text-gray-100 font-medium">{language}</span>
+		</nav>
+
+		<!-- Hero -->
+		<div class="mb-8 bg-white dark:bg-gray-900 rounded-xl border border-green-500 shadow-sm p-6">
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+				<div>
+					<h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+						{language} Open Source Issues
+					</h1>
+					<p class="mt-2 text-gray-500 dark:text-gray-400 max-w-2xl">
+						Browse <strong class="text-gray-900 dark:text-gray-100">{totalIssues.toLocaleString()}</strong> open {language} issues ready for contribution. Filter by difficulty to find beginner-friendly tasks.
+					</p>
+				</div>
+				<a href={`/repositories/${slug}`} class="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg text-sm transition-colors whitespace-nowrap">
+					Browse {language} Repos
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+					</svg>
+				</a>
+			</div>
+		</div>
+
+		<!-- Main Layout -->
+		<div class="flex flex-col md:flex-row gap-8">
+			<SidebarFilter uniqueLanguages={uniqueLanguages} defaultLanguage={language} />
+
+			<main class="grow min-w-0">
+				<SearchBar />
+				<div id="activeFiltersBar"></div>
+
+				<section class="mb-12">
+					<!-- Sort Tabs -->
+					<div class="flex gap-2 mb-6" data-active-sort="recent">
+						<button data-sort="recent" data-active="true" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-green-600 bg-green-600 text-white transition-colors">Recent</button>
+						<button data-sort="trending" data-active="false" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">This Week</button>
+						<button data-sort="easy" data-active="false" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">Easiest</button>
+					</div>
+
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+						{language} Issues
+						<span id="issueCount" class="text-sm font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{issues.length}</span>
+					</h2>
+
+					{issues.length > 0 ? (
+						<div id="issueList" class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-green-500 divide-y divide-gray-100 dark:divide-gray-800">
+							{issues.map((issue: any) => <IssueCard issue={issue} />)}
+						</div>
+					) : (
+						<p class="text-gray-500 dark:text-gray-400">No {language} issues found.</p>
+					)}
+
+					<div id="noIssuesMsg" class="hidden text-gray-500 dark:text-gray-400 mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800 text-center">
+						No issues match your filter.
+					</div>
+					<div id="paginationContainer" class="mt-8"></div>
+				</section>
+
+				<!-- Stubs required by filter.js on issue pages -->
+				<div id="repoCount" class="hidden"></div>
+				<div id="noReposMsg" class="hidden"></div>
+				<button id="showMoreReposBtn" class="hidden"></button>
+			</main>
+		</div>
+	</div>
+</Layout>
+
+<script is:inline src="/filter.js"></script>

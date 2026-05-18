@@ -5,7 +5,6 @@ import Layout from '../layouts/Layout.astro';
 import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
 import IssueCard from '../components/IssueCard.astro';
-import { fetchAllRecords } from '../lib/fetchAll';
 
 const PAGE_SIZE = 20;
 
@@ -51,11 +50,11 @@ try {
 ---
 
 <Layout title="Beginner-Friendly Issues - Find Your First Open Source Issue | Repo Wave" description="Browse thousands of beginner-friendly open-source issues. Find good-first-issues, help-wanted tags, and start your open-source journey today. Filter by language and difficulty.">
-	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-0">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
 		{fetchFailed && (
 			<div class="flex items-start gap-3 bg-amber-50 border border-amber-300 text-amber-800 px-5 py-4 rounded-xl mb-8 shadow-sm">
-				<svg class="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<svg class="shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
 					<line x1="12" y1="9" x2="12" y2="13"/>
 					<line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -73,12 +72,15 @@ try {
 			<SidebarFilter uniqueLanguages={uniqueLanguages} />
 
 			<!-- Main Content Area -->
-			<main class="flex-grow min-w-0">
+			<main class="grow min-w-0">
 
 				<SearchBar />
 
 				<!-- Issues Section -->
 				<section class="mb-12">
+					<!-- Active filter chips -->
+					<div id="activeFiltersBar"></div>
+
 					<!-- Issue Sort Tabs -->
 					<div class="flex gap-2 mb-6" data-active-sort="recent">
 						<button data-sort="recent" data-active="true" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-green-600 bg-green-600 text-white transition-colors dark:border-green-600">Recent</button>

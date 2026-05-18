@@ -85,6 +85,15 @@ const websiteJsonLd = JSON.stringify({
 				}
 			}
 			applyStoredTheme();
+			// Transfer dark class to incoming document before it's swapped in,
+			// preventing a flash of the light theme during View Transitions.
+			document.addEventListener('astro:before-swap', function(e) {
+				if (document.documentElement.classList.contains('dark')) {
+					e.newDocument.documentElement.classList.add('dark');
+				} else {
+					e.newDocument.documentElement.classList.remove('dark');
+				}
+			});
 			document.addEventListener('astro:page-load', applyStoredTheme);
 		</script>
 		<style>
@@ -93,7 +102,7 @@ const websiteJsonLd = JSON.stringify({
 			* { box-sizing: border-box; }
 		</style>
 	</head>
-	<body class="bg-gray-50 dark:bg-gray-950 flex flex-col min-h-screen transition-colors duration-200 m-0 p-0">
+	<body class="bg-gray-50 dark:bg-gray-950 flex flex-col min-h-screen m-0 p-0">
 		<!-- SVG Sprite for icons -->
 		<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
 			<symbol id="icon-bookmark-outline" viewBox="0 0 24 24">
@@ -158,10 +167,222 @@ const websiteJsonLd = JSON.stringify({
 			</div>
 		</div>
 
-		<!-- Help button -->
-		<button id="onboardingHelpBtn" class="fixed bottom-6 right-6 z-40 bg-green-600 hover:bg-green-700 text-white font-bold rounded-full w-10 h-10 flex items-center justify-center text-lg transition-colors shadow-lg">
-			?
+		<!-- Report Issue Button -->
+		<button id="reportBugBtn" title="Report a bug or security issue"
+			class="fixed bottom-6 right-6 z-40 bg-green-600 hover:bg-green-700 active:scale-95 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all shadow-lg">
+			<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<rect x="8" y="6" width="8" height="13" rx="4"/>
+				<path d="M19 9h-3M5 9h3M19 14h-3M5 14h3"/>
+				<path d="M10 4.5c0-.828.895-1.5 2-1.5s2 .672 2 1.5"/>
+				<path d="M10.5 3.5L9 2M13.5 3.5L15 2"/>
+			</svg>
 		</button>
+
+		<!-- Report Issue Modal -->
+		<div id="reportModal" class="fixed bottom-20 right-6 z-50 hidden w-80 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+			<!-- Header -->
+			<div class="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+				<h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+					<svg class="w-4 h-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<rect x="8" y="6" width="8" height="13" rx="4"/>
+						<path d="M19 9h-3M5 9h3M19 14h-3M5 14h3"/>
+					</svg>
+					Report an Issue
+				</h3>
+				<button id="reportModalClose" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-0.5">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+				</button>
+			</div>
+
+			<!-- Form -->
+			<div class="p-4 space-y-3">
+				<!-- Type toggle -->
+				<div class="grid grid-cols-2 gap-2">
+					<button data-report-type="bug"
+						class="report-type-btn flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border-2 border-orange-200 text-orange-700 dark:border-orange-800 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 transition-all">
+						Bug
+					</button>
+					<button data-report-type="security"
+						class="report-type-btn flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border-2 border-red-200 text-red-700 dark:border-red-800 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-all">
+						Security
+					</button>
+					<button data-report-type="feature"
+						class="report-type-btn flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border-2 border-blue-200 text-blue-700 dark:border-blue-800 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 transition-all">
+						Feature
+					</button>
+					<button data-report-type="other"
+						class="report-type-btn flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border-2 border-gray-200 text-gray-600 dark:border-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+						Other
+					</button>
+				</div>
+
+				<!-- Title -->
+				<div>
+					<label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Title <span class="text-red-500">*</span></label>
+					<input id="reportTitle" type="text" placeholder="Brief description…" maxlength="120"
+						class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/40 transition" />
+				</div>
+
+				<!-- Description -->
+				<div>
+					<label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Details</label>
+					<textarea id="reportDescription" rows="3" placeholder="Steps to reproduce, expected vs actual behavior…" maxlength="1000"
+						class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/40 transition resize-none"></textarea>
+				</div>
+
+				<!-- Submit -->
+				<button id="reportSubmitBtn"
+					class="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors text-sm flex items-center justify-center gap-2">
+					Submit Report
+				</button>
+
+				<!-- Status message -->
+				<p id="reportStatus" class="hidden text-xs text-center font-medium"></p>
+			</div>
+		</div>
+
+		<script is:inline>
+			(function() {
+				var selectedType = 'bug';
+
+				var typeColors = {
+					bug:      '#ea580c',
+					security: '#dc2626',
+					feature:  '#2563eb',
+					other:    '#6b7280',
+				};
+
+				function applyTypeStyles() {
+					document.querySelectorAll('.report-type-btn').forEach(function(btn) {
+						var t = btn.getAttribute('data-report-type');
+						var isActive = t === selectedType;
+						btn.setAttribute('data-active', isActive ? 'true' : 'false');
+						if (isActive) {
+							btn.style.backgroundColor = typeColors[t] || '#6b7280';
+							btn.style.borderColor = typeColors[t] || '#6b7280';
+							btn.style.color = '#fff';
+						} else {
+							btn.style.backgroundColor = '';
+							btn.style.borderColor = '';
+							btn.style.color = '';
+						}
+					});
+				}
+
+				function openModal() {
+					var modal = document.getElementById('reportModal');
+					if (modal) {
+						modal.classList.remove('hidden');
+						applyTypeStyles();
+						document.getElementById('reportTitle').focus();
+					}
+				}
+
+				function closeModal() {
+					var modal = document.getElementById('reportModal');
+					if (modal) modal.classList.add('hidden');
+					var status = document.getElementById('reportStatus');
+					if (status) { status.classList.add('hidden'); status.textContent = ''; }
+				}
+
+				function resetForm() {
+					selectedType = 'bug';
+					var title = document.getElementById('reportTitle');
+					var desc = document.getElementById('reportDescription');
+					if (title) title.value = '';
+					if (desc) desc.value = '';
+					applyTypeStyles();
+				}
+
+				document.addEventListener('astro:page-load', function() {
+					var openBtn = document.getElementById('reportBugBtn');
+					var closeBtn = document.getElementById('reportModalClose');
+					var submitBtn = document.getElementById('reportSubmitBtn');
+
+					if (openBtn) {
+						openBtn.addEventListener('click', function(e) {
+							e.stopPropagation();
+							var modal = document.getElementById('reportModal');
+							if (modal && modal.classList.contains('hidden')) {
+								openModal();
+							} else {
+								closeModal();
+							}
+						});
+					}
+
+					if (closeBtn) {
+						closeBtn.addEventListener('click', closeModal);
+					}
+
+					document.querySelectorAll('.report-type-btn').forEach(function(btn) {
+						btn.addEventListener('click', function() {
+							selectedType = btn.getAttribute('data-report-type');
+							applyTypeStyles();
+						});
+					});
+
+					document.addEventListener('click', function(e) {
+						var modal = document.getElementById('reportModal');
+						var openBtn = document.getElementById('reportBugBtn');
+						if (modal && !modal.classList.contains('hidden') &&
+							!modal.contains(e.target) && e.target !== openBtn && !openBtn.contains(e.target)) {
+							closeModal();
+						}
+					});
+
+					if (submitBtn) {
+						submitBtn.addEventListener('click', async function() {
+							var title = document.getElementById('reportTitle').value.trim();
+							var desc = document.getElementById('reportDescription').value.trim();
+							var status = document.getElementById('reportStatus');
+
+							if (!title) {
+								status.textContent = 'Please enter a title.';
+								status.className = 'text-xs text-center font-medium text-red-600 dark:text-red-400';
+								status.classList.remove('hidden');
+								return;
+							}
+
+							submitBtn.disabled = true;
+							submitBtn.textContent = 'Submitting…';
+
+							try {
+								var res = await fetch('/api/report', {
+									method: 'POST',
+									headers: { 'Content-Type': 'application/json' },
+									body: JSON.stringify({
+										type: selectedType,
+										title: title,
+										description: desc || null,
+										page_url: window.location.href,
+									}),
+								});
+
+								if (res.ok) {
+									status.textContent = '✓ Report submitted. Thank you!';
+									status.className = 'text-xs text-center font-medium text-green-600 dark:text-green-400';
+									status.classList.remove('hidden');
+									setTimeout(function() { closeModal(); resetForm(); }, 2000);
+								} else {
+									var err = await res.json();
+									status.textContent = err.error || 'Failed to submit. Please try again.';
+									status.className = 'text-xs text-center font-medium text-red-600 dark:text-red-400';
+									status.classList.remove('hidden');
+								}
+							} catch (e) {
+								status.textContent = 'Network error. Please try again.';
+								status.className = 'text-xs text-center font-medium text-red-600 dark:text-red-400';
+								status.classList.remove('hidden');
+							} finally {
+								submitBtn.disabled = false;
+								submitBtn.textContent = 'Submit Report';
+							}
+						});
+					}
+				});
+			})();
+		</script>
 
 		<!-- Auth Toast -->
 		<div id="auth-toast" class="fixed bottom-6 left-6 z-[100] transform -translate-x-[calc(100%+2rem)] transition-transform duration-500 ease-out pointer-events-none">

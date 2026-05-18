@@ -1,0 +1,179 @@
+---
+export const prerender = true;
+
+import Layout from '../../layouts/Layout.astro';
+import SidebarFilter from '../../components/SidebarFilter.astro';
+import SearchBar from '../../components/SearchBar.astro';
+import RepoCard from '../../components/RepoCard.astro';
+import { supabase } from '../../lib/supabase';
+
+const SPECIAL_SLUGS: Record<string, string> = {
+	'C++': 'cpp',
+	'C#': 'csharp',
+	'F#': 'fsharp',
+	'Objective-C': 'objective-c',
+};
+
+function langToSlug(lang: string): string {
+	return SPECIAL_SLUGS[lang] ?? lang
+		.toLowerCase()
+		.replace(/\s+/g, '-')
+		.replace(/[^a-z0-9-]/g, '')
+		.replace(/-+/g, '-')
+		.replace(/^-|-$/g, '');
+}
+
+export async function getStaticPaths() {
+	const SPECIAL: Record<string, string> = {
+		'C++': 'cpp', 'C#': 'csharp', 'F#': 'fsharp', 'Objective-C': 'objective-c',
+	};
+	function toSlug(lang: string): string {
+		return SPECIAL[lang] ?? lang.toLowerCase()
+			.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
+	}
+
+	const { data: langRows } = await supabase
+		.from('repos')
+		.select('language')
+		.not('language', 'is', null);
+
+	const languages = [
+		...new Set(langRows?.map((r: any) => r.language).filter(Boolean) ?? []),
+	].sort() as string[];
+
+	return languages.map((lang) => ({
+		params: { language: toSlug(lang) },
+		props: { language: lang },
+	}));
+}
+
+interface Props { language: string; }
+const { language } = Astro.props;
+const slug = langToSlug(language);
+const PAGE_SIZE = 20;
+
+const [reposResult, langResult, countResult] = await Promise.all([
+	supabase
+		.from('repos')
+		.select('*')
+		.eq('language', language)
+		.order('stars', { ascending: false })
+		.range(0, PAGE_SIZE - 1),
+	supabase
+		.from('repos')
+		.select('language')
+		.not('language', 'is', null)
+		.order('language'),
+	supabase
+		.from('repos')
+		.select('*', { count: 'exact', head: true })
+		.eq('language', language),
+]);
+
+const repos = reposResult.data ?? [];
+const uniqueLanguages = [
+	...new Set((langResult.data ?? []).map((r: any) => r.language).filter(Boolean)),
+].sort() as string[];
+const totalRepos = countResult.count ?? 0;
+
+let issuesByRepo: Map<string, any[]> = new Map();
+if (repos.length > 0) {
+	const repoIds = repos.map((r: any) => r.full_name);
+	const { data: issuesRaw } = await supabase
+		.from('issues')
+		.select('*')
+		.in('repo_id', repoIds)
+		.order('created_at', { ascending: false })
+		.limit(200);
+	for (const issue of issuesRaw ?? []) {
+		if (!issuesByRepo.has(issue.repo_id)) issuesByRepo.set(issue.repo_id, []);
+		issuesByRepo.get(issue.repo_id)!.push(issue);
+	}
+}
+
+const siteUrl = 'https://www.repowave.space';
+const pageTitle = `Best ${language} Open Source Repositories to Contribute to | Repo Wave`;
+const pageDesc = `Discover ${totalRepos.toLocaleString()} beginner-friendly ${language} open source repositories. Filter by difficulty, find good first issues, and start your ${language} open source journey today.`;
+
+const jsonLd = JSON.stringify({
+	'@context': 'https://schema.org',
+	'@type': 'BreadcrumbList',
+	itemListElement: [
+		{ '@type': 'ListItem', position: 1, name: 'Repositories', item: `${siteUrl}/repositories` },
+		{ '@type': 'ListItem', position: 2, name: `${language} Repositories`, item: `${siteUrl}/repositories/${slug}` },
+	],
+});
+---
+
+<Layout title={pageTitle} description={pageDesc} jsonLd={jsonLd}>
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+		<!-- Breadcrumb -->
+		<nav class="mb-6 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+			<a href="/repositories" class="hover:text-green-600 dark:hover:text-green-400 transition-colors">Repositories</a>
+			<svg class="w-4 h-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+			</svg>
+			<span class="text-gray-900 dark:text-gray-100 font-medium">{language}</span>
+		</nav>
+
+		<!-- Hero -->
+		<div class="mb-8 bg-white dark:bg-gray-900 rounded-xl border border-green-500 shadow-sm p-6">
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+				<div>
+					<h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+						{language} Open Source Repositories
+					</h1>
+					<p class="mt-2 text-gray-500 dark:text-gray-400 max-w-2xl">
+						Browse <strong class="text-gray-900 dark:text-gray-100">{totalRepos.toLocaleString()}</strong> curated {language} repositories welcoming new contributors. Filter by difficulty and find the perfect project to start with.
+					</p>
+				</div>
+				<a href={`/issues/${slug}`} class="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg text-sm transition-colors whitespace-nowrap">
+					Browse {language} Issues
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+					</svg>
+				</a>
+			</div>
+		</div>
+
+		<!-- Main Layout -->
+		<div class="flex flex-col md:flex-row gap-8">
+			<SidebarFilter uniqueLanguages={uniqueLanguages} defaultLanguage={language} />
+
+			<main class="grow min-w-0">
+				<SearchBar />
+				<div id="activeFiltersBar"></div>
+
+				<section>
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+						Repositories
+						<span id="repoCount" class="text-sm font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{repos.length}</span>
+					</h2>
+
+					{repos.length > 0 ? (
+						<div id="repoList" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+							{repos.map((repo: any) => (
+								<RepoCard repo={repo} repoIssues={issuesByRepo.get(repo.full_name) ?? []} />
+							))}
+						</div>
+					) : (
+						<p class="text-gray-500 dark:text-gray-400">No {language} repositories found.</p>
+					)}
+
+					<div id="noReposMsg" class="hidden text-gray-500 dark:text-gray-400 mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800 text-center">
+						No repositories match your filter.
+					</div>
+					<div id="paginationContainer" class="mt-8"></div>
+				</section>
+
+				<!-- Stubs required by filter.js on repo pages -->
+				<div id="issueCount" class="hidden"></div>
+				<div id="noIssuesMsg" class="hidden"></div>
+				<button id="showMoreIssuesBtn" class="hidden"></button>
+			</main>
+		</div>
+	</div>
+</Layout>
+
+<script is:inline src="/filter.js"></script>

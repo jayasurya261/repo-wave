@@ -43,7 +43,7 @@ function renderIssueCard(issue) {
             ${escHtml(issue.repo_id)} &middot; <span class="whitespace-nowrap">${date}</span>
           </p>
         </div>
-        <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
           ${issue.language ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300">${escHtml(issue.language)}</span>` : ''}
           ${d ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full ${d.cls}">Difficulty: ${d.text}</span>` : ''}
         </div>
@@ -144,7 +144,8 @@ function init() {
     let dashboardReposPage = 1;
     let debounceTimer = null;
 
-    // Helper functions
+    // ── Filter helpers ────────────────────────────────────────────────────────
+
     function getFilters() {
         const searchTerm = searchInput ? searchInput.value.trim() : '';
         const langEl = document.querySelector('input[name="language"]:checked');
@@ -169,6 +170,177 @@ function init() {
         };
     }
 
+    // ── New pill/button selection functions ───────────────────────────────────
+
+    function selectLang(value) {
+        const radio = document.querySelector(`input[name="language"][value="${value}"]`)
+                   || document.querySelector('input[name="language"][value="all"]');
+        if (radio) radio.checked = true;
+
+        document.querySelectorAll('[data-lang]').forEach(btn => {
+            btn.dataset.active = btn.dataset.lang === value ? 'true' : 'false';
+        });
+
+        updateActiveChipsBar();
+        updateFilterBadge();
+        refresh(true);
+    }
+
+    function selectDiff(value) {
+        const radio = document.querySelector(`input[name="difficulty"][value="${value}"]`)
+                   || document.querySelector('input[name="difficulty"][value="all"]');
+        if (radio) radio.checked = true;
+
+        document.querySelectorAll('[data-diff]').forEach(btn => {
+            btn.dataset.active = btn.dataset.diff === value ? 'true' : 'false';
+        });
+
+        updateActiveChipsBar();
+        updateFilterBadge();
+        refresh(true);
+    }
+
+    function syncAllPillsFromRadios() {
+        const langRadio = document.querySelector('input[name="language"]:checked');
+        const diffRadio = document.querySelector('input[name="difficulty"]:checked');
+
+        if (langRadio) {
+            document.querySelectorAll('[data-lang]').forEach(btn => {
+                btn.dataset.active = btn.dataset.lang === langRadio.value ? 'true' : 'false';
+            });
+        }
+        if (diffRadio) {
+            document.querySelectorAll('[data-diff]').forEach(btn => {
+                btn.dataset.active = btn.dataset.diff === diffRadio.value ? 'true' : 'false';
+            });
+        }
+
+        updateActiveChipsBar();
+        updateFilterBadge();
+    }
+
+    // ── Active chips bar ──────────────────────────────────────────────────────
+
+    function updateActiveChipsBar() {
+        const bar = document.getElementById('activeFiltersBar');
+        if (!bar) return;
+
+        const filters = getFilters();
+        const chips = [];
+
+        if (filters.lang !== 'all') {
+            chips.push(`
+                <span class="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 rounded-full text-sm font-medium border border-green-200 dark:border-green-800">
+                    <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    ${escHtml(filters.lang)}
+                    <button data-remove-lang onclick="window._filterSelectLang('all')" class="ml-0.5 w-4 h-4 rounded-full flex items-center justify-center hover:bg-green-200 dark:hover:bg-green-800 text-green-700 dark:text-green-300 transition-colors font-bold text-xs" aria-label="Remove language filter">&times;</button>
+                </span>`);
+        }
+
+        if (filters.difficulty !== 'all') {
+            const diffMap = {
+                easy:      { label: '🟢 Easy',      cls: 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800',   hover: 'hover:bg-green-200 dark:hover:bg-green-800' },
+                medium:    { label: '🟡 Medium',    cls: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800', hover: 'hover:bg-yellow-200 dark:hover:bg-yellow-800' },
+                hard:      { label: '🟠 Hard',      cls: 'bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 border-orange-200 dark:border-orange-800', hover: 'hover:bg-orange-200 dark:hover:bg-orange-800' },
+                'very-hard':{ label: '🔴 Very Hard', cls: 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800',           hover: 'hover:bg-red-200 dark:hover:bg-red-800' },
+            };
+            const d = diffMap[filters.difficulty];
+            if (d) {
+                chips.push(`
+                    <span class="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 ${d.cls} rounded-full text-sm font-medium border">
+                        ${d.label}
+                        <button data-remove-diff onclick="window._filterSelectDiff('all')" class="ml-0.5 w-4 h-4 rounded-full flex items-center justify-center ${d.hover} transition-colors font-bold text-xs" aria-label="Remove difficulty filter">&times;</button>
+                    </span>`);
+            }
+        }
+
+        if (chips.length > 0) {
+            chips.push(`
+                <button onclick="window._filterResetAll()" class="px-3 py-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    Clear all
+                </button>`);
+            bar.innerHTML = `<div class="flex flex-wrap items-center gap-2 mb-4">${chips.join('')}</div>`;
+        } else {
+            bar.innerHTML = '';
+        }
+    }
+
+    // ── Mobile filter badge ───────────────────────────────────────────────────
+
+    function updateFilterBadge() {
+        const filters = getFilters();
+        let count = 0;
+        if (filters.lang !== 'all') count++;
+        if (filters.difficulty !== 'all') count++;
+
+        const badge = document.getElementById('mobileFilterBadge');
+        if (!badge) return;
+        badge.textContent = String(count);
+        if (count > 0) {
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+        } else {
+            badge.classList.add('hidden');
+            badge.classList.remove('flex');
+        }
+    }
+
+    // ── Mobile drawer ─────────────────────────────────────────────────────────
+
+    function openDrawer() {
+        const overlay = document.getElementById('filterDrawerOverlay');
+        const drawer = document.getElementById('filterDrawer');
+        if (!overlay || !drawer) return;
+        overlay.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                overlay.classList.remove('opacity-0');
+                overlay.classList.add('opacity-100');
+                drawer.classList.remove('translate-y-full');
+                drawer.classList.add('translate-y-0');
+            });
+        });
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+        const overlay = document.getElementById('filterDrawerOverlay');
+        const drawer = document.getElementById('filterDrawer');
+        if (!overlay || !drawer) return;
+        overlay.classList.remove('opacity-100');
+        overlay.classList.add('opacity-0');
+        drawer.classList.remove('translate-y-0');
+        drawer.classList.add('translate-y-full');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+        document.body.style.overflow = '';
+    }
+
+    // ── Language pill search filter ───────────────────────────────────────────
+
+    function filterLangPills(query, containerId) {
+        const q = query.toLowerCase().trim();
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.querySelectorAll('[data-lang]').forEach(btn => {
+            const lang = btn.dataset.lang;
+            if (lang === 'all') { btn.style.display = ''; return; }
+            btn.style.display = (!q || lang.toLowerCase().includes(q)) ? '' : 'none';
+        });
+    }
+
+    // ── Expose globals for inline onclick in chips bar HTML ───────────────────
+
+    window._filterSelectLang = (v) => selectLang(v);
+    window._filterSelectDiff = (v) => selectDiff(v);
+    window._filterResetAll = () => {
+        selectLang('all');
+        selectDiff('all');
+        if (searchInput) searchInput.value = '';
+        refresh(true);
+    };
+
+    // ── Loading state ─────────────────────────────────────────────────────────
+
     function setLoading(container, loading) {
         if (!container) return;
         if (loading) {
@@ -182,7 +354,8 @@ function init() {
         }
     }
 
-    // Saved searches
+    // ── Saved searches ────────────────────────────────────────────────────────
+
     async function loadSavedSearches() {
         const container = document.getElementById('savedSearchesContainer');
         const list = document.getElementById('savedSearchesList');
@@ -203,63 +376,58 @@ function init() {
 
             container.classList.remove('hidden');
             list.innerHTML = searches.map(search => `
-				<div class="flex items-center justify-between gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-					<button
-						class="flex-1 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors truncate"
-						data-search-id="${search.id}"
-						data-search-filters='${JSON.stringify(search.filters).replace(/'/g, "&apos;")}'
-						onclick="applySavedSearch(this)">
-						${escHtml(search.name)}
-					</button>
-					<button
-						class="flex-shrink-0 text-red-500 hover:text-red-700 transition-colors p-1"
-						title="Delete"
-						onclick="deleteSavedSearch('${search.id}', event)">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3H4v2h16V7h-3.5z"/>
-						</svg>
-					</button>
-				</div>
-			`).join('');
+                <div class="flex items-center justify-between gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <button
+                        class="flex-1 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors truncate"
+                        data-search-id="${search.id}"
+                        data-search-filters='${JSON.stringify(search.filters).replace(/'/g, "&apos;")}'
+                        onclick="applySavedSearch(this)">
+                        ${escHtml(search.name)}
+                    </button>
+                    <button
+                        class="shrink-0 text-red-500 hover:text-red-700 transition-colors p-1"
+                        title="Delete"
+                        onclick="deleteSavedSearch('${search.id}', event)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3H4v2h16V7h-3.5z"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
         } catch (err) {
             console.error('Error loading saved searches:', err);
             container.classList.add('hidden');
         }
     }
 
-    // Global functions for saved searches
     window.applySavedSearch = function(btn) {
         const filters = JSON.parse(btn.getAttribute('data-search-filters'));
 
-        const langRadios = document.querySelectorAll('input[name="language"]');
-        langRadios.forEach(r => r.checked = false);
         const langRadio = document.querySelector(`input[name="language"][value="${filters.lang || 'all'}"]`);
         if (langRadio) langRadio.checked = true;
 
-        const diffRadios = document.querySelectorAll('input[name="difficulty"]');
-        diffRadios.forEach(r => r.checked = false);
         const diffRadio = document.querySelector(`input[name="difficulty"][value="${filters.difficulty || 'all'}"]`);
         if (diffRadio) diffRadio.checked = true;
 
-        const searchInputEl = document.getElementById('searchInput');
-        if (searchInputEl) {
-            searchInputEl.value = filters.q || '';
-        }
+        if (searchInput) searchInput.value = filters.q || '';
 
         if (filters.sort) {
             const sortBtn = document.querySelector(`[data-sort="${filters.sort}"]`);
             if (sortBtn) {
                 document.querySelectorAll('[data-sort]').forEach(b => {
-                    b.setAttribute('data-active', 'false');
-                    b.classList.remove('bg-green-600', 'text-white', 'border-green-600');
-                    b.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
+                    b.setAttribute('data-active', b === sortBtn ? 'true' : 'false');
+                    if (b === sortBtn) {
+                        b.classList.add('bg-green-600', 'text-white', 'border-green-600');
+                        b.classList.remove('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
+                    } else {
+                        b.classList.remove('bg-green-600', 'text-white', 'border-green-600');
+                        b.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
+                    }
                 });
-                sortBtn.setAttribute('data-active', 'true');
-                sortBtn.classList.add('bg-green-600', 'text-white', 'border-green-600');
-                sortBtn.classList.remove('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
             }
         }
 
+        syncAllPillsFromRadios();
         refresh(true);
     };
 
@@ -311,7 +479,8 @@ function init() {
         }
     };
 
-    // Pagination
+    // ── Pagination ────────────────────────────────────────────────────────────
+
     function renderPagination(total, pageSize, page, onNavigate) {
         if (!paginationContainer) return;
         paginationContainer.innerHTML = '';
@@ -374,7 +543,8 @@ function init() {
         paginationContainer.appendChild(nav);
     }
 
-    // Page-specific renderers
+    // ── Page-specific renderers ───────────────────────────────────────────────
+
     async function refreshIssues(page, filters) {
         if (!issueListEl) return;
         setLoading(issueListEl, true);
@@ -434,21 +604,53 @@ function init() {
         }
     }
 
-    // Event listeners (attached/detached on each navigation)
+    // ── Event listeners ───────────────────────────────────────────────────────
+
+    // Search input
     if (searchInput) {
         searchInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => refresh(true), 300);
+            debounceTimer = setTimeout(() => {
+                updateActiveChipsBar();
+                refresh(true);
+            }, 300);
         });
     }
 
-    document.querySelectorAll('input[name="language"]').forEach(r =>
-        r.addEventListener('change', () => refresh(true))
-    );
-    document.querySelectorAll('input[name="difficulty"]').forEach(r =>
-        r.addEventListener('change', () => refresh(true))
-    );
+    // Lang pills (desktop + mobile — same selector [data-lang])
+    document.querySelectorAll('[data-lang]').forEach(btn => {
+        btn.addEventListener('click', () => selectLang(btn.dataset.lang));
+    });
 
+    // Diff buttons (desktop + mobile — same selector [data-diff])
+    document.querySelectorAll('[data-diff]').forEach(btn => {
+        btn.addEventListener('click', () => selectDiff(btn.dataset.diff));
+    });
+
+    // Lang search inputs
+    const langSearchEl = document.getElementById('langSearch');
+    if (langSearchEl) {
+        langSearchEl.addEventListener('input', () => filterLangPills(langSearchEl.value, 'langPillsContainer'));
+    }
+    const langSearchMobileEl = document.getElementById('langSearchMobile');
+    if (langSearchMobileEl) {
+        langSearchMobileEl.addEventListener('input', () => filterLangPills(langSearchMobileEl.value, 'langPillsContainerMobile'));
+    }
+
+    // Mobile drawer controls
+    const openDrawerBtn = document.getElementById('openFilterDrawer');
+    const closeDrawerBtn = document.getElementById('closeFilterDrawer');
+    const drawerOverlay = document.getElementById('filterDrawerOverlay');
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+
+    if (openDrawerBtn) openDrawerBtn.addEventListener('click', openDrawer);
+    if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
+    if (drawerOverlay) drawerOverlay.addEventListener('click', closeDrawer);
+    if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', () => window._filterResetAll());
+    if (applyFiltersBtn) applyFiltersBtn.addEventListener('click', closeDrawer);
+
+    // Sort buttons
     document.querySelectorAll('[data-sort]').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('[data-sort]').forEach(b => {
@@ -465,10 +667,12 @@ function init() {
         });
     });
 
+    // Save search button
     if (saveSearchBtn) {
         saveSearchBtn.addEventListener('click', window.saveCurrentSearch);
     }
 
+    // Show-more buttons (dashboard)
     if (showMoreIssuesBtn) {
         showMoreIssuesBtn.addEventListener('click', () => {
             dashboardIssuesPage++;
@@ -491,7 +695,8 @@ function init() {
         });
     }
 
-    // Initial load
+    // ── Initial load ──────────────────────────────────────────────────────────
+
     async function initCounts() {
         const filters = getFilters();
 
@@ -544,6 +749,10 @@ function init() {
             }
         }
     }
+
+    syncAllPillsFromRadios();
+    updateActiveChipsBar();
+    updateFilterBadge();
 
     initCounts();
     if (document.getElementById('savedSearchesList')) {
