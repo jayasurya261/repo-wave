@@ -1,5 +1,6 @@
 ﻿---
 export const prerender = false;
+export const revalidate = 60; // ISR: Revalidate cached page every 60 seconds
 import Layout from '../layouts/Layout.astro';
 import SidebarFilter from '../components/SidebarFilter.astro';
 import SearchBar from '../components/SearchBar.astro';
@@ -10,40 +11,48 @@ const PAGE_SIZE = 20;
 
 let issues: any[] = [];
 let fetchFailed = false;
+let uniqueLanguages: string[] = [];
+let lastUpdated: string | null = null;
 
 try {
-	const issuesRaw = await fetchAllRecords('issues', '*, repos(language)', 'created_at', false, PAGE_SIZE);
+	const { supabase } = await import('../lib/supabase');
+
+	// Parallelize all independent queries with Promise.all
+	const [issuesResult, langResult, latestIssueResult] = await Promise.all([
+		// Fetch initial 20 issues with repo language join (direct query, not via fetchAllRecords)
+		supabase.from('issues').select('*, repos(language)').order('created_at', { ascending: false }).range(0, PAGE_SIZE - 1),
+		// Get unique languages (single query instead of 5 batch queries)
+		supabase.from('repos').select('language').not('language', 'is', null).order('language'),
+		// Get latest issue for "updated" timestamp
+		supabase.from('issues').select('created_at').order('created_at', { ascending: false }).limit(1).single(),
+	]);
+
+	// Extract issues data
+	const issuesRaw = issuesResult.data ?? [];
 	issues = issuesRaw?.map((issue: any) => ({
 		...issue,
 		language: issue.repos?.language || ''
 	})) ?? [];
+
+	// Process languages with deduplication
+	const langRows = langResult.data ?? [];
+	uniqueLanguages = [...new Set(langRows.map((r: any) => r.language).filter(Boolean))].sort() as string[];
+
+	// Extract latest issue timestamp
+	if (latestIssueResult.data?.created_at) {
+		const diff = Date.now() - new Date(latestIssueResult.data.created_at).getTime();
+		const h = Math.floor(diff / 36e5), d = Math.floor(diff / 864e5);
+		lastUpdated = d >= 1 ? `${d}d ago` : h >= 1 ? `${h}h ago` : 'just now';
+	}
 } catch (err) {
 	console.error('[issues] Failed to fetch data from Supabase:', err);
 	fetchFailed = true;
 }
-
-// Unique languages for sidebar â€” lightweight distinct query
-let uniqueLanguages: string[] = [];
-try {
-	const langRows = await fetchAllRecords('repos', 'language', 'language', true, 5000);
-	uniqueLanguages = [...new Set(langRows.map((r: any) => r.language).filter(Boolean))].sort() as string[];
-} catch { /* non-fatal */ }
-
-// Data freshness
-let lastUpdated: string | null = null;
-try {
-	const { supabase } = await import('../lib/supabase');
-	const { data } = await supabase.from('issues').select('created_at').order('created_at', { ascending: false }).limit(1).single();
-	if (data?.created_at) {
-		const diff = Date.now() - new Date(data.created_at).getTime();
-		const h = Math.floor(diff / 36e5), d = Math.floor(diff / 864e5);
-		lastUpdated = d >= 1 ? `${d}d ago` : h >= 1 ? `${h}h ago` : 'just now';
-	}
-} catch { /* non-fatal */ }
+---
 ---
 
 <Layout title="Beginner-Friendly Issues - Find Your First Open Source Issue | Repo Wave" description="Browse thousands of beginner-friendly open-source issues. Find good-first-issues, help-wanted tags, and start your open-source journey today. Filter by language and difficulty.">
-	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-0">
 
 		{fetchFailed && (
 			<div class="flex items-start gap-3 bg-amber-50 border border-amber-300 text-amber-800 px-5 py-4 rounded-xl mb-8 shadow-sm">
@@ -66,11 +75,18 @@ try {
 
 			<!-- Main Content Area -->
 			<main class="flex-grow min-w-0">
-				
+
 				<SearchBar />
 
 				<!-- Issues Section -->
 				<section class="mb-12">
+					<!-- Issue Sort Tabs -->
+					<div class="flex gap-2 mb-6" data-active-sort="recent">
+						<button data-sort="recent" data-active="true" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-green-600 bg-green-600 text-white transition-colors dark:border-green-600">Recent</button>
+						<button data-sort="trending" data-active="false" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">This Week</button>
+						<button data-sort="easy" data-active="false" class="sort-tab px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">Easiest</button>
+					</div>
+
 					<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
 						All Issues
 						<span id="issueCount" class="text-sm font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{issues ? issues.length : 0}</span>
@@ -103,3 +119,5 @@ try {
 </Layout>
 
 <script is:inline src="/filter.js"></script>
+
+
