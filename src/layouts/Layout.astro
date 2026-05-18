@@ -88,7 +88,9 @@ const websiteJsonLd = JSON.stringify({
 			document.addEventListener('astro:page-load', applyStoredTheme);
 		</script>
 		<style>
-			html { margin: 0; padding: 0; border: none; }
+			html { margin: 0; padding: 0; border: none; overflow-y: scroll; }
+			body { margin: 0 !important; padding: 0 !important; }
+			* { box-sizing: border-box; }
 		</style>
 	</head>
 	<body class="bg-gray-50 dark:bg-gray-950 flex flex-col min-h-screen transition-colors duration-200 m-0 p-0">
