@@ -154,6 +154,12 @@ const pageDesc = `${diffCategory} difficulty open-source issue in ${issue.repo_i
                         </div>
                     </div>
                 )}
+
+                {diffCategory === 'Easy' && (
+                    <p class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 text-sm text-gray-500 dark:text-gray-400">
+                        New to contributing? Read <a href="/guide/finding-good-first-issues" class="text-indigo-600 hover:underline dark:text-indigo-400">our guide to finding good first issues</a> before you start.
+                    </p>
+                )}
             </div>
         </div>
 
@@ -185,6 +191,11 @@ const pageDesc = `${diffCategory} difficulty open-source issue in ${issue.repo_i
                     </div>
                 </div>
             </a>
+        </div>
+
+        <!-- Contribution tip -->
+        <div class="mt-6 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-4 text-sm text-indigo-800 dark:text-indigo-300">
+            Ready to work on this? Walk through <a href="/guide/github-contribution-guide" class="font-medium underline hover:text-indigo-600 dark:hover:text-indigo-200">the full fork-to-PR workflow</a> so your first contribution goes smoothly.
         </div>
 
         <!-- Back Navigation -->

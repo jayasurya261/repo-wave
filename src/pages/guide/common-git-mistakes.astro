@@ -1,8 +1,25 @@
 ﻿---
 import Layout from '../../layouts/Layout.astro';
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "How do I fix committing to the wrong branch in Git?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Create a new branch first with git branch new-feature, then reset main back one commit with git reset HEAD~1 --hard, and switch to your new branch with git checkout new-feature." } },
+    { "@type": "Question", "name": "How do I fix a typo in my last Git commit message?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Use git commit --amend -m \"your corrected message\" to rewrite the last commit message. Only do this before pushing to GitHub; if you have already pushed you will need to force push." } },
+    { "@type": "Question", "name": "How do I undo my last Git commit but keep the code changes?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Run git reset HEAD~1 --soft. This removes the commit but leaves your file changes staged so you can add more files and recommit." } },
+    { "@type": "Question", "name": "How do I discard all local changes in Git and go back to the last commit?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Run git reset --hard HEAD. Warning: this permanently deletes all uncommitted changes and cannot be undone." } },
+    { "@type": "Question", "name": "How do I fix merge conflicts in Git?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Open the conflicting file in your editor. You will see conflict markers showing your changes (HEAD) and the incoming changes. Accept the version you want, save the file, then run git add filename and git commit." } }
+  ]
+});
 ---
 
-<Layout title="Common Git Mistakes & Fixes | Repo Wave" description="Accidentally committed to main? Messed up a rebase? Here are the most common Git mistakes beginners make and how to easily fix them.">
+<Layout title="Common Git Mistakes and How to Fix Them | Repo Wave" description="Accidentally committed to main? Messed up a rebase? Here are the most common Git mistakes beginners make and how to easily fix them." jsonLd={jsonLd}>
   <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <a href="/guide" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>

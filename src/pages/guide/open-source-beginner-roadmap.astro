@@ -1,8 +1,17 @@
 ﻿---
 import Layout from '../../layouts/Layout.astro';
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to Start Contributing to Open Source — Beginner Roadmap",
+  "description": "A clear, phase-by-phase roadmap for getting from complete beginner to open-source regular contributor. Covers your first issue, your first PR, and beyond.",
+  "author": { "@type": "Organization", "name": "Repo Wave" },
+  "publisher": { "@type": "Organization", "name": "Repo Wave" }
+});
 ---
 
-<Layout title="Open Source Beginner Roadmap | Repo Wave" description="A comprehensive roadmap outlining what to learn, when to learn it, and how to gradually level up your open-source skills.">
+<Layout title="How to Start Contributing to Open Source — Beginner Roadmap | Repo Wave" description="A clear, phase-by-phase roadmap for getting from complete beginner to open-source regular contributor. Covers your first issue, your first PR, and beyond." jsonLd={jsonLd}>
   <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <a href="/guide" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -33,7 +42,7 @@ import Layout from '../../layouts/Layout.astro';
       <p>Now that you know the workflow, it's time to write some code.</p>
       <ul>
         <li><strong>Find "Good First Issues":</strong> Use <a href="/issues" class="text-indigo-600 hover:text-indigo-800 underline">Repo Wave</a> to filter for beginner-friendly tasks in a language you already know well.</li>
-        <li><strong>Read the Contributing Guidelines:</strong> Every good project has a <code>CONTRIBUTING.md</code> file. Read it before you start coding; it contains essential setup instructions.</li>
+        <li><strong>Read the Contributing Guidelines:</strong> Every good project has a <code>CONTRIBUTING.md</code> file. Read it before you start coding; it contains essential setup instructions. When you're ready to write code, follow <a href="/guide/github-contribution-guide" class="text-indigo-600 dark:text-indigo-400 hover:underline">our full GitHub Contribution Guide</a> for the fork-to-PR workflow.</li>
         <li><strong>Ask for Help:</strong> If you get stuck setting up the project locally, ask on the issue thread! Maintainers are usually happy to help someone who is genuinely trying.</li>
       </ul>
 

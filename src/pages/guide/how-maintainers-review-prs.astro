@@ -1,8 +1,21 @@
 ﻿---
 import Layout from '../../layouts/Layout.astro';
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What do open source maintainers look for when reviewing a pull request?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Maintainers check four things: (1) Did you fill out the PR template? (2) Is the PR scope narrow and focused? (3) Did you write tests? (4) Did you follow the code style and run the linter?" } },
+    { "@type": "Question", "name": "How long should I wait for a pull request review?",
+      "acceptedAnswer": { "@type": "Answer", "text": "If a week passes with no response, leave a polite comment pinging the maintainer. If there is no response after a month, the project may be abandoned — move on to a more active repository." } },
+    { "@type": "Question", "name": "Why do open source maintainers take so long to review PRs?",
+      "acceptedAnswer": { "@type": "Answer", "text": "95% of open source maintainers are unpaid volunteers. Reviewing a PR means reading your code, understanding the logic, running it locally, and verifying nothing breaks — that takes significant time." } }
+  ]
+});
 ---
 
-<Layout title="How Maintainers Review PRs | Repo Wave" description="Understand what open-source maintainers look for so your Pull Requests get merged faster.">
+<Layout title="How Maintainers Review PRs | Repo Wave" description="Understand what open-source maintainers look for so your Pull Requests get merged faster." jsonLd={jsonLd}>
   <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <a href="/guide" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -62,6 +75,9 @@ import Layout from '../../layouts/Layout.astro';
       <p>
         If no one responds after a month, the project might be abandoned. Move on to a healthier, more active repository!
       </p>
+
+      <hr class="my-10 border-gray-200 dark:border-gray-700" />
+      <p class="text-gray-500 dark:text-gray-400 italic text-base">Missed a step? Review <a href="/guide/github-contribution-guide" class="text-indigo-600 dark:text-indigo-400 hover:underline">the GitHub Contribution Guide</a> for the full workflow, or check our list of <a href="/guide/common-git-mistakes" class="text-indigo-600 dark:text-indigo-400 hover:underline">common Git mistakes and how to fix them</a>.</p>
 
     </div>
   </article>

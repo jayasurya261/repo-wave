@@ -1,8 +1,24 @@
 ﻿---
 import Layout from '../../layouts/Layout.astro';
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Contribute to Open Source on GitHub",
+  "description": "A step-by-step walkthrough of the full contribution workflow — fork, branch, write code, commit, and open your first pull request.",
+  "step": [
+    { "@type": "HowToStep", "position": 1, "name": "Fork and Clone the Repository", "text": "Click the Fork button on GitHub to create a copy on your account, then clone it locally: git clone https://github.com/YOUR-USERNAME/repository-name.git" },
+    { "@type": "HowToStep", "position": 2, "name": "Keep Your Fork Synced", "text": "Add the original repo as upstream: git remote add upstream URL, then git fetch upstream and git merge upstream/main." },
+    { "@type": "HowToStep", "position": 3, "name": "Create a Feature Branch", "text": "Never work on main. Create a branch: git checkout -b fix-login-button" },
+    { "@type": "HowToStep", "position": 4, "name": "Write Code and Commit", "text": "Make your changes, test them, then commit: git add . && git commit -m 'fix: updated login button'" },
+    { "@type": "HowToStep", "position": 5, "name": "Push Your Branch", "text": "Push your branch to your fork: git push origin fix-login-button" },
+    { "@type": "HowToStep", "position": 6, "name": "Open a Pull Request", "text": "On the original repository, click Compare & pull request. Fill out the template explaining what changed and why. Link the issue with Fixes #123." },
+    { "@type": "HowToStep", "position": 7, "name": "Respond to Review", "text": "The maintainer will review your code and may request changes. Make updates locally, commit, and push — the PR updates automatically." }
+  ]
+});
 ---
 
-<Layout title="GitHub Contribution Guide | Repo Wave" description="The complete workflow from forking a repository to opening a Pull Request.">
+<Layout title="How to Contribute to Open Source on GitHub | Repo Wave" description="A step-by-step walkthrough of the full contribution workflow — fork, branch, write code, commit, and open your first pull request." jsonLd={jsonLd}>
   <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <a href="/guide" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -78,7 +94,7 @@ git commit -m "fix: updated login button color to blue"</code></pre>
 
       <h2>7. Review and Celebrate</h2>
       <p>
-        The maintainer will review your code. They might ask for changes. Don't take it personally! Just make the changes locally, commit, and push again. The PR updates automatically.
+        The maintainer will review your code. They might ask for changes. Don't take it personally! Just make the changes locally, commit, and push again. The PR updates automatically. Curious about <a href="/guide/how-maintainers-review-prs" class="text-indigo-600 dark:text-indigo-400 hover:underline">what maintainers are actually looking for when they open your PR</a>? We have a guide for that too.
       </p>
 
     </div>

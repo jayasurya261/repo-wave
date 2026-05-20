@@ -1,8 +1,21 @@
 ﻿---
 import Layout from '../../layouts/Layout.astro';
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Find Good First Issues on GitHub",
+  "description": "Learn how to find good first issues on GitHub — what labels to look for, how to evaluate a repository, and how to claim your first task.",
+  "step": [
+    { "@type": "HowToStep", "position": 1, "name": "Pick a Language You Know", "text": "Filter for repositories in a programming language you already know. Do not try to learn a new language and open source simultaneously." },
+    { "@type": "HowToStep", "position": 2, "name": "Look for Active Repositories", "text": "Check that the repo has commits within the last month, recent merged pull requests, and responsive maintainers." },
+    { "@type": "HowToStep", "position": 3, "name": "Read the Issue Carefully", "text": "Look for issues labeled good first issue, beginner-friendly, help wanted, or documentation. A well-written issue tells you what the bug is, which file to change, and how to test the fix." },
+    { "@type": "HowToStep", "position": 4, "name": "Stake Your Claim", "text": "Comment on the issue before coding. Ask if it is still available and describe your approach. Wait for the maintainer to assign it before spending hours coding." }
+  ]
+});
 ---
 
-<Layout title="How to Find Good First Issues | Repo Wave" description="A step-by-step guide to discovering low-barrier tasks perfect for beginners making their first open-source contribution.">
+<Layout title="How to Find Good First Issues | Repo Wave" description="Learn how to find good first issues on GitHub — what labels to look for, how to evaluate a repository, and how to claim your first task." jsonLd={jsonLd}>
   <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <a href="/guide" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>

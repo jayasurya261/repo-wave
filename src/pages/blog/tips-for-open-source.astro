@@ -1,10 +1,26 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What should I do for my first open source contribution?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Start small. Fix a typo, improve a comment, or add a small feature. Look for issues labeled good first issue, help wanted, or documentation. Small wins build momentum and help you understand the codebase." } },
+    { "@type": "Question", "name": "Should I contact maintainers before coding an open source contribution?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Comment on the issue, describe your approach, and wait for approval before writing any code. This prevents spending hours on a solution the maintainer does not want." } },
+    { "@type": "Question", "name": "What should a good open source pull request include?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A good PR references the issue it fixes (Fixes #123), explains what changed and why, lists how to test the changes, and mentions whether you added tests. A maintainer should understand your changes in under 2 minutes." } },
+    { "@type": "Question", "name": "How should I respond to feedback on my open source pull request?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Do not get defensive. Ask questions if you do not understand the feedback, make the changes promptly, and thank the maintainer. Handling feedback gracefully builds your reputation as a professional collaborator." } }
+  ]
+});
 ---
 
 <Layout
   title="10 Pro Tips for Open Source Success - Learn How to Contribute | Repo Wave"
-  description="Master open-source contributions with these 10 expert tips. Learn what maintainers want, how to write better PRs, and how to stand out as a contributor.">
+  description="Master open-source contributions with these 10 expert tips. Learn what maintainers want, how to write better PRs, and how to stand out as a contributor."
+  jsonLd={jsonLd}>
   <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <a href="/blog" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-8 transition-colors">
       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -28,7 +44,7 @@ import Layout from '../../layouts/Layout.astro';
         Your first contribution should fix a typo, improve a comment, or add a small feature. Don't try to refactor the entire codebase on day one. Small wins build momentum and help you understand the codebase incrementally.
       </p>
       <p>
-        <strong>Action:</strong> Look for issues labeled "good first issue," "help wanted," or "documentation."
+        <strong>Action:</strong> Look for issues labeled "good first issue," "help wanted," or "documentation." Not sure where to search? See <a href="/guide/finding-good-first-issues" class="text-indigo-600 hover:underline">our step-by-step guide to finding good first issues</a>.
       </p>
 
       <h2>2. Read the CONTRIBUTING.md File</h2>
@@ -73,7 +89,7 @@ import Layout from '../../layouts/Layout.astro';
         <li>Mention if you added tests</li>
       </ul>
       <p>
-        A maintainer reading your PR should understand your changes in under 2 minutes.
+        A maintainer reading your PR should understand your changes in under 2 minutes. For a deeper look at <a href="/guide/how-maintainers-review-prs" class="text-indigo-600 hover:underline">what a maintainer is actually thinking when they open your PR</a>, we have a dedicated guide.
       </p>
 
       <h2>5. Follow the Code Style</h2>
