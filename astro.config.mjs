@@ -16,7 +16,7 @@ export default defineConfig({
   adapter: vercel({
     isr: {
       expiration: 60, // Revalidate pages every 60 seconds
-      exclude: ['/api/*', '/profile', '/bookmarks', '/guide', '/blog'], // Don't cache user-specific or frequently-updated pages
+      exclude: ['/api/*', '/profile', '/bookmarks'], // Don't cache user-specific or frequently-updated pages
     },
   }),
   output: 'server',
